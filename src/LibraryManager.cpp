@@ -3,3 +3,5 @@
 
 LibraryManager::LibraryManager(LibraryDatabase &db, LibraryUI &ui)
 : libraryDatabase(db), libraryUI(ui) { }
+
+void LibraryManager::displayMenu() {}
