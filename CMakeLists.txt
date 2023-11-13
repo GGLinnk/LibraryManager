@@ -12,7 +12,7 @@ include(cmake/CPM.cmake)
 
 CPMAddPackage("gh:ArthurSonzogni/ftxui#v5.0.0")
 CPMAddPackage("gh:SRombauts/SQLiteCpp#3.3.1")
-##CPMAddPackage("gh:gabime/spdlog#v1.12.0")
+CPMAddPackage("gh:gabime/spdlog#v1.12.0")
 
 # Set source files
 include_directories(include)
@@ -30,5 +30,5 @@ target_link_libraries(LibraryManager
   PRIVATE ftxui::dom
   PRIVATE ftxui::component
   PRIVATE SQLiteCpp
-  #PRIVATE spdlog
+  PRIVATE spdlog
 )
