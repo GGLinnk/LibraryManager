@@ -1,13 +1,8 @@
 #pragma once
 
-#include <string>
+#include "LibraryItemKind.h"
 
-enum ItemKind {
-    NONE,
-    BOOK,
-    MOVIE,
-    AUDIO
-};
+#include <string>
 
 class LibraryItem  {
 private:

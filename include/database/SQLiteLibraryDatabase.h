@@ -6,23 +6,21 @@
 #include <SQLiteCpp/SQLiteCpp.h>
 #include <vector>
 
-namespace LibraryDatabaseNS {
+class SQLiteLibraryDatabase : public LibraryDatabase {
+public:
+    SQLiteLibraryDatabase(const std::string& dbName);
 
-    class SQLiteLibraryDatabase : LibraryDatabase {
-    public:
-        SQLiteLibraryDatabase(const std::string& dbName);
+    bool initialize() override;
+    bool isInitialized() const override;
 
-        bool initialize();
-        bool isInitialized() const override;
+    void saveItem(const LibraryItem &item) override;
+    void saveKind(const ItemKind &kind) override;
+    /* std::vector<LibraryItem> getAllItems() const override;
+    std::vector<LibraryItem> searchItems(const std::string& searchTerm) const override;
+    std::vector<LibraryItem> sortItemsByName() const override; */
 
-        bool saveItem(const LibraryItem& item) override;
-        /* std::vector<LibraryItem> getAllItems() const override;
-        std::vector<LibraryItem> searchItems(const std::string& searchTerm) const override;
-        std::vector<LibraryItem> sortItemsByName() const override; */
-
-    private:
-        bool initialized;
-        SQLite::Database database;
-    };
-
-}
+private:
+    bool initialized;
+    SQLite::Database database;
+    std::string dbtype = "SQLite3";
+};

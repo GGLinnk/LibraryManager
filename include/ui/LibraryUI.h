@@ -1,10 +1,8 @@
 #pragma once
 
-namespace LibraryUINS {
-    class LibraryUI {
-    public:
-        virtual ~LibraryUI() = default;
+class LibraryUI {
+public:
+    virtual ~LibraryUI() = default;
 
-        virtual void displayMenu() = 0;
-    };
-}
+    virtual void displayMenu() = 0;
+};

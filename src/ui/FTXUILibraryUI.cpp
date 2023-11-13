@@ -1,11 +1,9 @@
 #include "ui/FTXUILibraryUI.h"
 
-namespace LibraryUINS {
-    FTXUILibraryUI::FTXUILibraryUI() {
+FTXUILibraryUI::FTXUILibraryUI() {
 
-    }
+}
 
-    void FTXUILibraryUI::displayMenu() {
-        
-    }
+void FTXUILibraryUI::displayMenu() {
+    
 }

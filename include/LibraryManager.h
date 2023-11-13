@@ -5,19 +5,16 @@
 #include "ui/LibraryUI.h"
 #include "LibraryItem.h"
 
-namespace LibraryManagerNS {
-    class LibraryManager {
-    private:
-        LibraryDatabaseNS::LibraryDatabase& libraryDatabase;
-        LibraryUINS::LibraryUI& libraryUI;
+class LibraryManager {
+private:
+    LibraryDatabase& libraryDatabase;
+    LibraryUI& libraryUI;
 
-    public:
-        LibraryManager();
-        LibraryManager(LibraryDatabaseNS::LibraryDatabase &db, LibraryUINS::LibraryUI &ui);
+public:
+    LibraryManager();
+    LibraryManager(LibraryDatabase &db, LibraryUI &ui);
 
-        void initializeDatabase();
-        void displayMenu();
+    void displayMenu();
 
-        //~LibraryManager();
-    };
-}
+    //~LibraryManager();
+};
