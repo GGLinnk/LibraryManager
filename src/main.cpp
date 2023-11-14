@@ -10,8 +10,6 @@ int main(int argc, char **argv, char **env) {
     LibraryManager libraryManager;
     CLIParser cliParser(libraryManager);
 
-    std::cout << "Starting main program" << std::endl;
-
     cliParser.parse(argc, argv);
    
     return EXIT_SUCCESS;

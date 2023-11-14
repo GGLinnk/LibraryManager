@@ -2,22 +2,30 @@
 
 #include <iostream>
 
-SQLiteLibraryDatabase::SQLiteLibraryDatabase(const std::filesystem::path &dbPath) :
-database(dbPath, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE) {
-    initialized = initialize();
+const std::filesystem::path SQLiteLibraryDatabase::getLibraryDatabasePath(
+    const std::filesystem::path &appDataFolder,
+    const std::string &dbFileName
+) {
+    std::filesystem::path libraryDatabasePath(appDataFolder);
+
+    return libraryDatabasePath.append(dbFileName);
 }
 
-bool SQLiteLibraryDatabase::initialize() {
+SQLiteLibraryDatabase::SQLiteLibraryDatabase(const std::filesystem::path &dataFolder, const std::string &databaseFileName) :
+database(getLibraryDatabasePath(dataFolder, databaseFileName), SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE) {
     try {
         database.exec("CREATE TABLE IF NOT EXISTS library_items (id INTEGER PRIMARY KEY, name TEXT, author TEXT, description TEXT, kind INTEGER)");
         database.exec("CREATE TABLE IF NOT EXISTS item_kinds (id INTEGER PRIMARY KEY, name TEXT)");
     } catch(SQLite::Exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
-        return false;
+        return;
     }
 
-    return true;
+    initialized = true;
 }
+
+SQLiteLibraryDatabase::SQLiteLibraryDatabase(const std::filesystem::path &dataFolder) :
+SQLiteLibraryDatabase::SQLiteLibraryDatabase(dataFolder, std::string(DEFAULT_DB_FILENAME)) {}
 
 void SQLiteLibraryDatabase::saveItem(const LibraryItem& item) {
     //Logger::getDatabaseLogger()->info("SQLiteLibraryDatabase saveItem");

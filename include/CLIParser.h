@@ -12,8 +12,4 @@ public:
 private:
     LibraryManager& libraryManager;
     CLI::App cliargsparser;
-
-    void printHelp();
-    void tuiMode();
-    void guiMode();
 };

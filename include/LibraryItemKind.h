@@ -9,7 +9,7 @@ public:
     explicit ItemKind(long int id);
     explicit ItemKind();
 
-    long int getId() const;
+    const long int getId() const;
     const std::string& getName() const;
 
 private:

@@ -9,7 +9,6 @@ class LibraryDatabase {
 public:
     virtual ~LibraryDatabase() = default;
     
-    virtual bool initialize() = 0;
     virtual bool isInitialized() const = 0; // New function to check initialization status
 
     virtual void saveItem(const LibraryItem &item) = 0;

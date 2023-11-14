@@ -15,35 +15,19 @@ const std::filesystem::path LibraryManager::getAppDataFolder(const std::string &
     return def_appdata;
 }
 
-const std::filesystem::path LibraryManager::getLibraryDatabasePath(
-    const std::filesystem::path &appDataFolder,
-    const std::string &dbFileName
-) {
-    std::filesystem::path libraryDatabasePath(appDataFolder);
-
-    return libraryDatabasePath.append(dbFileName);
-}
-
-LibraryManager::LibraryManager(const std::filesystem::path &appDataFolder, LibraryDatabase &&db, LibraryUI &&ui) :
+LibraryManager::LibraryManager(const std::filesystem::path &appDataFolder) :
 appDataFolder(appDataFolder),
-libraryDatabase(db),
-libraryUI(ui) {
-    std::cout << "Loading LibraryManager..." << std::endl;
+libraryDatabase(SQLiteLibraryDatabase(appDataFolder)),
+libraryUI(FTXUILibraryUI()) {
+    //std::cout << "Loading LibraryManager..." << std::endl;
 
     if (!libraryDatabase.isInitialized()) {
         throw std::runtime_error("Database is not initialized !");
     }
 
-    std::cout << "App data folder : " << appDataFolder << std::endl;
-    std::cout << "LibraryManager loading finished." << std::endl;
+    //std::cout << "App data folder : " << appDataFolder << std::endl;
+    //std::cout << "LibraryManager loading finished." << std::endl;
 }
-
-LibraryManager::LibraryManager(const std::filesystem::path &appDataFolder) :
-LibraryManager(
-    appDataFolder,
-    SQLiteLibraryDatabase(getLibraryDatabasePath(appDataFolder, std::string(LIB_DB_FILENAME))),
-    FTXUILibraryUI()
-) {}
 
 LibraryManager::LibraryManager() :
 LibraryManager(
