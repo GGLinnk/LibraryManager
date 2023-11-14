@@ -4,7 +4,10 @@
 
 class ItemKind {
 public:
-    ItemKind(long int id, const std::string &name);
+    explicit ItemKind(long int id, const std::string &name);
+    explicit ItemKind(const std::string &name);
+    explicit ItemKind(long int id);
+    explicit ItemKind();
 
     long int getId() const;
     const std::string& getName() const;
@@ -12,4 +15,5 @@ public:
 private:
     long int id;
     std::string name;
+    bool initialized = false;
 };

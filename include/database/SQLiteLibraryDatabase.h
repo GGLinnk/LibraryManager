@@ -8,7 +8,7 @@
 
 class SQLiteLibraryDatabase : public LibraryDatabase {
 public:
-    SQLiteLibraryDatabase(const std::string& dbName);
+    explicit SQLiteLibraryDatabase(const std::filesystem::path &dbPath);
 
     bool initialize() override;
     bool isInitialized() const override;

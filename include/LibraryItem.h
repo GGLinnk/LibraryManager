@@ -13,7 +13,7 @@ private:
     std::string description;
 
 public:
-    LibraryItem(int id, const std::string &name, const std::string &author, const std::string &description, ItemKind kind);
+    explicit LibraryItem(int id, const std::string &name, const std::string &author, const std::string &description, ItemKind kind);
 
     // Getters
     int getId() const;

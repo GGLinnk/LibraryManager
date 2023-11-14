@@ -5,7 +5,7 @@
 
 class FTXUILibraryUI : public LibraryUI {
 public:
-    FTXUILibraryUI();
+    explicit FTXUILibraryUI();
 
     void displayMenu() override;
 };

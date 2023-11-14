@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-SQLiteLibraryDatabase::SQLiteLibraryDatabase(const std::string& dbName) :
-database(dbName, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE) {
+SQLiteLibraryDatabase::SQLiteLibraryDatabase(const std::filesystem::path &dbPath) :
+database(dbPath, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE) {
     initialized = initialize();
 }
 

@@ -9,7 +9,7 @@
 
 class LibraryNavigator {
 public:
-    LibraryNavigator(std::unique_ptr<LibraryDatabase>&& database, std::size_t pageSize);
+    explicit LibraryNavigator(std::unique_ptr<LibraryDatabase>&& database, std::size_t pageSize);
 
     void firstPage();
     void lastPage();

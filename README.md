@@ -2,6 +2,8 @@
 This is a library item manager.
 It's designed using FTXUI and SQLite3 but other database or (G)UI can be easily implemented.
 
+## Compile
+
 ## Requirements
 To run this software you will need to install Microsoft VC Redistribuables
 https://aka.ms/vs/17/release/vc_redist.x86.exe
