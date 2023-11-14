@@ -25,6 +25,11 @@ CPMAddPackage("gh:gabime/spdlog#v1.12.0")
 message("Adding CLI11 2.3.2")
 CPMAddPackage("gh:CLIUtils/CLI11#v2.3.2")
 
+configure_file(
+    ${CMAKE_SOURCE_DIR}/config.h.in
+    ${CMAKE_SOURCE_DIR}/include/config.h
+)
+
 include_directories(include)
 file(GLOB
   SOURCES "src/*.cpp"

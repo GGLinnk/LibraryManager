@@ -1,13 +1,14 @@
+#include "config.h"
 #include "CLIParser.h"
 
 #include <iostream>
 
-CLIParser::CLIParser(LibraryManager &manager) : libraryManager(manager), cliargsparser{APP_NAME} {
+CLIParser::CLIParser(LibraryManager &manager) : libraryManager(manager), cliargsparser{PROJECT_NV} {
     //CLI::App* guimode = cliargsparser.add_subcommand("gui", "Graphical User Interface mode.");
     //CLI::App* tuimode = cliargsparser.add_subcommand("tui", "Terminal User Interface mode.");
     //CLI::App* appsetting = cliargsparser.add_subcommand("config", "App settings.");
 
-    CLI::App* cliaddingmode = cliargsparser.add_subcommand("add", "Add new items to the library.");
+    CLI::App* cliaddingmode = cliargsparser.add_subcommand("add",    "Add new items to the library.");
     CLI::App* cliremovemode = cliargsparser.add_subcommand("remove", "Remove items from the library.");
     CLI::App* clisearchmode = cliargsparser.add_subcommand("search", "Search items from the library.");
 
