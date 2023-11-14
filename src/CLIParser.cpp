@@ -11,7 +11,7 @@ CLIParser::CLIParser(LibraryManager &manager) : libraryManager(manager), cliargs
     CLI::App* cliremovemode = cliargsparser.add_subcommand("remove", "Remove items from the library.");
     CLI::App* clisearchmode = cliargsparser.add_subcommand("search", "Search items from the library.");
 
-    cliargsparser.require_subcommand(0, 1);
+    cliargsparser.require_subcommand(1, 1);
 }
 
 int CLIParser::parse(int argc, char* argv[]) {
