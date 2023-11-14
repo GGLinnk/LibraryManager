@@ -7,20 +7,44 @@ It's designed using FTXUI and SQLite3 but other database or (G)UI can be easily 
 
 Their purpose is for faster quick builds. They are not safe.
 
+### Requirements
+
+#### Windows
+- Visual Studio Build Tools or Visual Studio.
+- CMake 3.12 and up.
+
+#### Linux / UNIX
+- g++ compiler or any supported c++ compiler should work.
+- CMake 3.12 and up.
+
+### Build withCMake on all supported platform
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
+
 
 ## Requirements
-To run this software you will need to install Microsoft VC Redistribuables
-https://aka.ms/vs/17/release/vc_redist.x86.exe
-https://aka.ms/vs/17/release/vc_redist.x64.exe
+To run this software once compiled you will need to install Microsoft VC Redistribuables:
+- https://aka.ms/vs/17/release/vc_redist.x86.exe
+- https://aka.ms/vs/17/release/vc_redist.x64.exe
+
 
 ## Usage
 <!-- ### GUI Mode
 This is the default mode when implemented. -->
 
-### TUI Mode
+<!-- ### TUI Mode
 This mode allow for terminal user interface. It uses FTXUI by default.
-It could be forced with tui argument ``LibraryManager(.exe) tui``
+It could be forced with tui argument ``LibraryManager(.exe) tui`` -->
 
-<!-- ### CLI Mode
-This mode avoid any user interface by running only through cli.
-Run the program with cli argument ``LibraryManager(.exe) cli`` -->
+### CLI Mode
+This allow for direct cli commands
+
+Run the program to show the helper
+```bash
+./LibraryManager(.exe) -h
+```
+> Under windows LibraryManager executable is in the ``Debug`` subfolder.
