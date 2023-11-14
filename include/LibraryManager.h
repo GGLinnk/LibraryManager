@@ -2,6 +2,8 @@
 
 #define APP_NAME "LibraryManager"
 
+#include "LibraryItem.h"
+
 #include "database/LibraryDatabase.h"
 #include "database/SQLiteLibraryDatabase.h"
 
@@ -26,6 +28,7 @@ public:
     explicit LibraryManager();
 
     void addItem(
+        const long int id,
         const std::string& name,
         const std::string& author,
         const std::string& description,

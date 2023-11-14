@@ -19,14 +19,9 @@ LibraryManager::LibraryManager(const std::filesystem::path &appDataFolder) :
 appDataFolder(appDataFolder),
 libraryDatabase(SQLiteLibraryDatabase(appDataFolder)),
 libraryUI(FTXUILibraryUI()) {
-    //std::cout << "Loading LibraryManager..." << std::endl;
-
     if (!libraryDatabase.isInitialized()) {
         throw std::runtime_error("Database is not initialized !");
     }
-
-    //std::cout << "App data folder : " << appDataFolder << std::endl;
-    //std::cout << "LibraryManager loading finished." << std::endl;
 }
 
 LibraryManager::LibraryManager() :
@@ -39,13 +34,13 @@ bool LibraryManager::isValidItemId(int itemId) {
     return itemId > 0;
 }
 
-void LibraryManager::addItem(const std::string& name, const std::string& author, const std::string& description, const std::string& kind) {
+void LibraryManager::addItem(const long int id, const std::string& name, const std::string& author, const std::string& description, const std::string& kind) {
     // Validate inputs before processing
     if (name.empty() || author.empty() || description.empty() || kind.empty()) {
         throw std::runtime_error("One of the required entry is empty !");
     }
 
-    // Process the item addition...
+    //Item item = Item();
 }
 
 void LibraryManager::removeItem(int itemId) {
