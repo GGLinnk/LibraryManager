@@ -65,11 +65,3 @@ int CLIParser::parse(int argc, char* argv[]) {
 
     */
 }
-
-void CLIParser::guiMode() {
-    std::cout << "Not yet available" << std::endl;
-}
-
-void CLIParser::tuiMode() {
-    std::cout << "Not yet available" << std::endl;
-}
