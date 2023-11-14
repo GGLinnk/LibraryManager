@@ -3,6 +3,10 @@ This is a library item manager.
 It's designed using FTXUI and SQLite3 but other database or (G)UI can be easily implemented.
 
 ## Compile
+** WARNING ** Build scripts DO NOT GUARANTEE a good CMake state.
+
+Their purpose is for faster quick builds. They are not safe.
+
 
 ## Requirements
 To run this software you will need to install Microsoft VC Redistribuables
