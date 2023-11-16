@@ -1,68 +1,75 @@
-#include "config.h"
+#ifdef DEAD_CODE
 #include "CLIParser.h"
 
 #include <iostream>
 
-CLIParser::CLIParser(LibraryManager &manager) : libraryManager(manager), cliargsparser{PROJECT_NV} {
-    //CLI::App* guimode = cliargsparser.add_subcommand("gui", "Graphical User Interface mode.");
-    //CLI::App* tuimode = cliargsparser.add_subcommand("tui", "Terminal User Interface mode.");
-    //CLI::App* appsetting = cliargsparser.add_subcommand("config", "App settings.");
+CLIParser::CLIParser() : app{PROJECT_NAMEVER} {
+    app.allow_windows_style_options();
+    app.require_subcommand(1, 1);
 
-    CLI::App* cliaddingmode = cliargsparser.add_subcommand("add",    "Add new items to the library.");
-    CLI::App* cliremovemode = cliargsparser.add_subcommand("remove", "Remove items from the library.");
-    CLI::App* clisearchmode = cliargsparser.add_subcommand("search", "Search items from the library.");
-
-    cliargsparser.require_subcommand(1, 1);
+    configureOptions();
+    configureSubcommands();
 }
 
-int CLIParser::parse(int argc, char* argv[]) {
-    CLI11_PARSE(cliargsparser, argc, argv);
+void CLIParser::configureOptions() {
+    //app.add_option("-d,--database", libraryManager.database.databasePath, "Path to the database");
+    // Add more options as needed
+}
 
-    return 0;
-/*
-    // Handle other commands based on flags
-    if (cmdl[{"tui"}]) {
-        tuiMode();
-    } else if (cmdl[{"gui"}]) {
-        guiMode();
-    } else if (cmdl[{"-a", "--add"}]) {
-        std::string name, author, description, kind;
+void CLIParser::configureSubcommands() {
+    auto addCommand = app.add_subcommand("add", "Add a library item or item kind");
+    addCommand->callback([this]() { handleAddCommand(); });
 
-        cmdl({"-n", "--name"}) >> name;
-        cmdl({"-a", "--author"}) >> author;
-        cmdl({"-d", "--description"}) >> description;
-        cmdl({"-k", "--kind"}) >> kind;
+    auto removeCommand = app.add_subcommand("remove", "Remove a library item or item kind");
+    removeCommand->callback([this]() { handleRemoveCommand(); });
 
-        libraryManager.addItem(name, author, description, kind);
+    auto searchCommand = app.add_subcommand("search", "Search for library items or item kinds");
+    searchCommand->callback([this]() { handleSearchCommand(); });
 
-        return;
-    } else if (cmdl[{"-r", "--remove"}]) {
-        int itemId = 0;
+    auto updateCommand = app.add_subcommand("update", "Update a library item or item kind");
+    updateCommand->callback([this]() { handleUpdateCommand(); });
+}
 
-        cmdl({"-r", "--remove"}) >> itemId;
+void CLIParser::handleCommands() {
+    // Add more logic to handle other commands and options
+}
 
-        libraryManager.removeItem(itemId);
+void CLIParser::handleAddCommand() {
+    std::string name, author, description;
+    int kindId;
 
-        return;
-    } else if (cmdl[{"-s", "--search"}]) {
-        std::string search, name, author, description, kind;
+    std::cout << "Enter item name: ";
+    std::getline(std::cin, name);
 
-        cmdl({"-s", "--search"}) >> search;
-        cmdl({"-n", "--name"}) >> name;
-        cmdl({"-a", "--author"}) >> author;
-        cmdl({"-d", "--description"}) >> description;
-        cmdl({"-k", "--kind"}) >> kind;
+    std::cout << "Enter author: ";
+    std::getline(std::cin, author);
 
-        std::cout << "what" << search << name << author << description << kind << std::endl;
+    std::cout << "Enter description: ";
+    std::getline(std::cin, description);
 
-        libraryManager.searchItems(search, name, author, description, kind);
+    std::cout << "Enter kind ID: ";
+    std::cin >> kindId;
+}
 
-        return;
-    } else {
-        std::cerr << "Error: Unrecognized command. Use '--help' for usage information.\n";
+void CLIParser::handleRemoveCommand() {
+    // Implement logic for removing library items or item kinds
+}
 
-        return;
+void CLIParser::handleSearchCommand() {
+    // Implement logic for searching library items or item kinds
+}
+
+void CLIParser::handleUpdateCommand() {
+    // Implement logic for updating library items or item kinds
+}
+
+int CLIParser::parse(int argc, char *argv[]) {
+    try {
+        app.parse(argc, argv);
+    } catch(const CLI::ParseError &e) {
+        return app.exit(e);
     }
 
-    */
+    return 0;
 }
+#endif

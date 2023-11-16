@@ -1,15 +1,28 @@
+#ifdef DEAD_CODE
 #pragma once
 
-#include "LibraryManager.h"
+#include "config.h"
+
+#include "LibraryItem.h"
+
 #include <CLI/CLI.hpp>
 
 class CLIParser {
 public:
-    explicit CLIParser(LibraryManager& manager);
+    explicit CLIParser();
 
     int parse(int argc, char* argv[]);
 
 private:
-    LibraryManager& libraryManager;
-    CLI::App cliargsparser;
+    CLI::App app;
+
+    void configureOptions();
+    void configureSubcommands();
+
+    void handleCommands();
+    void handleAddCommand();
+    void handleRemoveCommand();
+    void handleSearchCommand();
+    void handleUpdateCommand();
 };
+#endif
