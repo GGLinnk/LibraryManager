@@ -28,15 +28,14 @@ SQLiteLibraryDatabase::SQLiteLibraryDatabase(const std::filesystem::path &dataFo
 SQLiteLibraryDatabase::SQLiteLibraryDatabase(dataFolder, std::string(DEFAULT_DB_FILENAME)) {}
 
 void SQLiteLibraryDatabase::saveItem(const LibraryItem& item) {
-    //Logger::getDatabaseLogger()->info("SQLiteLibraryDatabase saveItem");
-
+    if (!checkItemDB(item))
+        return;
     if (item.getId() <= 0) {
-        // Insert a new item
         SQLite::Statement query(database, "INSERT INTO library_items (name, author, description, kind) VALUES (?, ?, ?, ?)");
         query.bind(1, item.getName());
         query.bind(2, item.getAuthor());
         query.bind(3, item.getDescription());
-        query.bind(4, item.getKind().getId());
+        query.bind(4, item.getItemKind().getId());
         query.exec();
     } else {
         // Check if the item with the specified ID exists
@@ -49,7 +48,7 @@ void SQLiteLibraryDatabase::saveItem(const LibraryItem& item) {
             updateQuery.bind(1, item.getName());
             updateQuery.bind(2, item.getAuthor());
             updateQuery.bind(3, item.getDescription());
-            updateQuery.bind(4, item.getKind().getId());
+            updateQuery.bind(4, item.getItemKind().getId());
             updateQuery.bind(5, item.getId());
             updateQuery.exec();
         } else {
@@ -59,8 +58,8 @@ void SQLiteLibraryDatabase::saveItem(const LibraryItem& item) {
     }
 }
 
-void SQLiteLibraryDatabase::saveKind(const ItemKind& kind) {
-    //Logger::getDatabaseLogger()->info("SQLiteLibraryDatabase saveKind");
+void SQLiteLibraryDatabase::saveItemKind(const ItemKind& kind) {
+    //Logger::getDatabaseLogger()->info("SQLiteLibraryDatabase saveItemKind");
 
     if (kind.getId() <= 0) {
         // Insert a new kind
@@ -83,6 +82,34 @@ void SQLiteLibraryDatabase::saveKind(const ItemKind& kind) {
             throw std::runtime_error("Cannot update non-existent kind with ID: " + std::to_string(kind.getId()));
         }
     }
+}
+
+bool SQLiteLibraryDatabase::checkItemDB(const LibraryItem& item) {
+    if (item.getId() == 0)
+        if (checkItemExists(item))
+            return false;
+    if (item.getId() > 0)
+        if (!checkItemIdExists(item.getId()))
+            return false;
+
+    return true;
+}
+
+bool SQLiteLibraryDatabase::checkItemExists(const LibraryItem& item) {
+    SQLite::Statement query(database, "SELECT 1 FROM library_items WHERE name = ? AND author = ? LIMIT 1;");
+
+    query.bind(1, item.getName());
+    query.bind(2, item.getAuthor());
+
+    return query.executeStep();
+}
+
+bool SQLiteLibraryDatabase::checkItemIdExists(long int id) {
+    SQLite::Statement query(database, "SELECT 1 FROM library_items WHERE id = :input_id LIMIT 1;");
+
+    query.bind(1, id);
+
+    return query.executeStep();
 }
 
 bool SQLiteLibraryDatabase::isInitialized() const {

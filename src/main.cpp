@@ -1,16 +1,16 @@
 #include "LibraryManager.h"
-#include "CLIParser.h"
 
 #include <iostream>
-
 #include <spdlog/spdlog.h>
-#include <spdlog/sinks/basic_file_sink.h>
 
-int main(int argc, char **argv, char **env) {
-    LibraryManager libraryManager;
-    CLIParser cliParser(libraryManager);
-
-    cliParser.parse(argc, argv);
+int main(int argc, char *argv[]) {
+    try {
+        LibraryManager libraryManager = LibraryManager(argc, argv);
+    } catch (const CLI::ParseError &e) {
+        std::cout << e.what();
+    } catch (...) {
+        std::cerr << "Unsupported error occured !" << std::endl;
+    }
    
     return EXIT_SUCCESS;
 }

@@ -6,21 +6,25 @@
 
 class LibraryItem  {
 private:
-    ItemKind kind;
     long int id;
     std::string name;
     std::string author;
     std::string description;
+    ItemKind itemKind;
+
+    bool initialized;
 
 public:
-    explicit LibraryItem(int id, const std::string &name, const std::string &author, const std::string &description, const ItemKind kind);
+    LibraryItem();
+    LibraryItem(long int id, const std::string& name, const std::string& author, const std::string& description, const ItemKind itemKind);
+
+    void setInitialized();
+    bool isInitialized() const;
 
     // Getters
-    int getId() const;
-    const std::string &getName() const;
-    const std::string &getAuthor() const;
-    const std::string &getDescription() const;
-    ItemKind getKind() const;
-
-    bool set_kind();
+    long int getId() const;
+    const std::string& getName() const;
+    const std::string& getAuthor() const;
+    const std::string& getDescription() const;
+    ItemKind getItemKind() const;
 };
