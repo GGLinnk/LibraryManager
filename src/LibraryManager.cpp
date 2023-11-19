@@ -165,6 +165,8 @@ void LibraryManager::handleItemKindCommand(CLI::App* cmd) {
 void LibraryManager::handleRemoveItemCommand(CLI::App* cmd) {
     long int id = cmd->get_option("--id")->as<long int>();
 
+    operationKind = OperationKind::Remove;
+
     if (id > 0)
         libraryItem = LibraryItem(id);
     else if (id <= 0)
@@ -173,6 +175,8 @@ void LibraryManager::handleRemoveItemCommand(CLI::App* cmd) {
 
 void LibraryManager::handleRemoveItemKindCommand(CLI::App* cmd) {
     long int id = cmd->get_option("--id")->as<long int>();
+
+    operationKind = OperationKind::Remove;
 
     if (id > 0)
         itemKind = ItemKind(id);
@@ -295,13 +299,20 @@ void LibraryManager::applyDatabaseChanges() {
         case OperationKind::Remove: {
             if (kindMode) {
                 itemKind = libraryDatabase->fetchFullItemKind(itemKind);
+
                 if (promptItemDeletion())
                     libraryDatabase->removeItem(itemKind);
+                else
+                    std::cout << "Category not deleted !" << std::endl;
             } else {
                 libraryItem = libraryDatabase->fetchFullItem(libraryItem);
+
                 if (promptItemDeletion())
                     libraryDatabase->removeItem(libraryItem);
+                else
+                    std::cout << "Item not deleted !" << std::endl;
             }
+            break;
         }
         default:
             throw ManagerException("Unsupported yet");
