@@ -15,8 +15,8 @@ ItemKind::ItemKind(long int id)
 
 ItemKind::ItemKind(long int id, const std::string& name)
 : id(id), name(name) {
-    empty = (id >= 0 || !name.empty()) ? false : true;
-    initialized = (id >= 0 && !name.empty()) ? false : true;
+    empty = (id <= 0 && name.empty()) ? true : false;
+    initialized = (id >= 0 && !name.empty()) ? true : false;
 }
 
 bool ItemKind::isInitialized() const {

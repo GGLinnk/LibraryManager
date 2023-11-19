@@ -36,9 +36,8 @@ private:
     SQLite::Statement fetchTableRowByName(const std::string& name, const std::string& tableName); 
 
     bool checkItemAlreadyExists(const LibraryItem& item);
-    bool checkItemAlreadyExists(const ItemKind& itemKind);
-    
-    bool checkIdAlreadyExists(const long int id, const std::string& tableName);
+    bool checkItemKindAlreadyExists(const ItemKind& itemKind);
+    bool checkIdExists(const long int id, const std::string& tableName);
 
-    bool removeTableRow(const long int id, const std::string& tableName);
+    bool removeTableRowById(const long int id, const std::string& tableName);
 };
