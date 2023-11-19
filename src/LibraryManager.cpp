@@ -17,6 +17,8 @@ LibraryManager::LibraryManager(int argc, char *argv[]) :
         applyDatabaseChanges();
     } catch (const CLI::ParseError& e) {
         throw ManagerException(ManagerExceptionKind::CLIParseError, e.what());
+    } catch(SQLite::Exception& e) {
+        throw ManagerException(ManagerExceptionKind::DBException, e.what());
     }
 }
 
