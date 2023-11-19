@@ -10,6 +10,7 @@ enum ManagerExceptionKind {
     CLIParseError,
     CustomAbort,
     DBEntryNotFound,
+    DBException,
     DBInitFail,
     EmptyUpdatePrompt,
     EmptyAddItem,

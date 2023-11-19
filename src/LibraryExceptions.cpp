@@ -28,6 +28,8 @@ std::string ManagerException::getMessage(ManagerExceptionKind reason) {
         return std::string("Failed to Parse CLI!");
     case ManagerExceptionKind::DBEntryNotFound:
         return std::string("Database entry not found!");
+    case ManagerExceptionKind::DBException:
+        return std::string("Database exception found!");
     case ManagerExceptionKind::DBInitFail:
         return std::string("Database init fail!");
     case ManagerExceptionKind::EmptyUpdatePrompt:
