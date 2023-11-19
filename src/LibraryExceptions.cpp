@@ -42,6 +42,8 @@ std::string ManagerException::getMessage(ManagerExceptionKind reason) {
         return std::string("Failed to create directory!");
     case ManagerExceptionKind::FSNotADirectory:
         return std::string("Not a directory!");
+    case ManagerExceptionKind::InvalidItem:
+        return std::string("Invalid Item!");
     case ManagerExceptionKind::InvalidItemID:
         return std::string("Invalid ID!");
     case ManagerExceptionKind::InvalidItemKind:

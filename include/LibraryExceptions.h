@@ -17,6 +17,7 @@ enum ManagerExceptionKind {
     FSFileNotCreated,
     FSDirectoryNotCreated,
     FSNotADirectory,
+    InvalidItem,
     InvalidItemID,
     InvalidItemKind,
     InvalidUpdateID,
