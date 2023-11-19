@@ -90,6 +90,9 @@ private:
 
     int parse(int argc, char *argv[]);
     void fullInit();
+
+    void applyDatabaseAdd();
+    void applyDatabaseRemove();
     void applyDatabaseChanges();
     bool promptItemDeletion();
 

@@ -276,6 +276,38 @@ void LibraryManager::fullInit() {
     initialized = true;
 }
 
+void LibraryManager::applyDatabaseAdd() {
+    if (kindMode) {
+        if (libraryDatabase->saveItemKind(itemKind))
+            std::cout << "Intem sucessfully added to the database!";
+        else
+            throw ManagerException(ManagerExceptionKind::InvalidItemKind);
+    } else {
+        if (libraryDatabase->saveItem(libraryItem))
+            std::cout << "Intem sucessfully added to the database!";
+        else
+            throw ManagerException(ManagerExceptionKind::InvalidItem);
+    }
+}
+
+void LibraryManager::applyDatabaseRemove() {
+    if (kindMode) {
+        itemKind = libraryDatabase->fetchFullItemKind(itemKind);
+
+        if (promptItemDeletion())
+            libraryDatabase->removeItemKind(itemKind);
+        else
+            std::cout << "Category not deleted !" << std::endl;
+    } else {
+        libraryItem = libraryDatabase->fetchFullItem(libraryItem);
+
+        if (promptItemDeletion())
+            libraryDatabase->removeItem(libraryItem);
+        else
+            std::cout << "Item not deleted !" << std::endl;
+    }
+}
+
 void LibraryManager::applyDatabaseChanges() {
     if (!initialized)
         return; //throw ManagerException(ManagerExceptionKind::NotInitialized);
@@ -284,34 +316,10 @@ void LibraryManager::applyDatabaseChanges() {
         case OperationKind::None:
             throw ManagerException();
         case OperationKind::Update:
-        case OperationKind::Add: {
-            if (kindMode) {
-                libraryDatabase->checkItem(itemKind);
-                libraryDatabase->saveItem(itemKind);
-            } else {
-                libraryDatabase->checkItem(libraryItem);
-                libraryDatabase->saveItem(libraryItem);
-            }
-            break;
-        }
-        case OperationKind::Remove: {
-            if (kindMode) {
-                itemKind = libraryDatabase->fetchFullItemKind(itemKind);
-
-                if (promptItemDeletion())
-                    libraryDatabase->removeItem(itemKind);
-                else
-                    std::cout << "Category not deleted !" << std::endl;
-            } else {
-                libraryItem = libraryDatabase->fetchFullItem(libraryItem);
-
-                if (promptItemDeletion())
-                    libraryDatabase->removeItem(libraryItem);
-                else
-                    std::cout << "Item not deleted !" << std::endl;
-            }
-            break;
-        }
+        case OperationKind::Add:
+            return applyDatabaseAdd();
+        case OperationKind::Remove:
+            return applyDatabaseRemove();
         default:
             throw ManagerException("Unsupported yet");
     }
