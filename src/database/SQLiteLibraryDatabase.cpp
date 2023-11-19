@@ -159,7 +159,7 @@ bool SQLiteLibraryDatabase::checkItem(const LibraryItem& item) {
     return true;
 }
 
-SQLite::Statement SQLiteLibraryDatabase::fetchTableRow(const long int id, const std::string& tableName) {
+SQLite::Statement SQLiteLibraryDatabase::fetchTableRowById(const long int id, const std::string& tableName) {
     SQLite::Statement fetchQuery(database, "SELECT 1 FROM :tableName WHERE id = :id LIMIT 1;");
 
     fetchQuery.bind(":tableName", tableName);
@@ -168,7 +168,7 @@ SQLite::Statement SQLiteLibraryDatabase::fetchTableRow(const long int id, const 
     return fetchQuery;
 }
 
-SQLite::Statement SQLiteLibraryDatabase::fetchTableRow(const std::string& name, const std::string& tableName) {
+SQLite::Statement SQLiteLibraryDatabase::fetchTableRowByName(const std::string& name, const std::string& tableName) {
     SQLite::Statement fetchQuery(database, "SELECT 1 FROM :tableName WHERE name = :name LIMIT 1;");
 
     fetchQuery.bind(":tableName", tableName);

@@ -64,11 +64,12 @@ private:
     void handleRemoveItemPreparse(CLI::App* cmd);
 
     void handleItemCommand(CLI::App* cmd);
-    void handleItemSearchCommand(CLI::App* cmd);
-    void handleRemoveItemCommand(CLI::App* cmd);
-
     void handleItemKindCommand(CLI::App* cmd);
+
+    void handleItemSearchCommand(CLI::App* cmd);
     void handleItemKindSearchCommand(CLI::App* cmd);
+
+    void handleRemoveItemCommand(CLI::App* cmd);
     void handleRemoveItemKindCommand(CLI::App* cmd);
     
     bool promptIdForUpdate(long int& id);

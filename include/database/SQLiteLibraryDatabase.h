@@ -32,8 +32,8 @@ private:
     //std::unique_ptr<SQLite::Database> database;
     SQLite::Database database;
 
-    SQLite::Statement fetchTableRow(const long int id, const std::string& tableName);
-    SQLite::Statement fetchTableRow(const std::string& name, const std::string& tableName); 
+    SQLite::Statement fetchTableRowById(const long int id, const std::string& tableName);
+    SQLite::Statement fetchTableRowByName(const std::string& name, const std::string& tableName); 
 
     bool checkItemAlreadyExists(const LibraryItem& item);
     bool checkItemAlreadyExists(const ItemKind& itemKind);
