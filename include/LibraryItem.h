@@ -12,14 +12,18 @@ private:
     std::string description;
     ItemKind itemKind;
 
-    bool initialized;
+    bool empty = true;
+    bool initialized = false;
 
 public:
     LibraryItem();
+    LibraryItem(long int id);
+    LibraryItem(const std::string& name, const std::string& author, const std::string& description, const ItemKind itemKind);
     LibraryItem(long int id, const std::string& name, const std::string& author, const std::string& description, const ItemKind itemKind);
 
     void setInitialized();
     bool isInitialized() const;
+    bool isEmpty() const;
 
     // Getters
     long int getId() const;

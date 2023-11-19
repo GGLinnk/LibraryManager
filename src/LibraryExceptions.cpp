@@ -1,5 +1,66 @@
 #include "LibraryExceptions.h"
 
+ManagerException::ManagerException()
+: ManagerException(ManagerExceptionKind::UserAborted) {}
+
+ManagerException::ManagerException(ManagerExceptionKind reason)
+: reason(reason), std::runtime_error(getMessage(reason)) { }
+
+ManagerException::ManagerException(ManagerExceptionKind reason, const std::string& addMessage)
+: reason(reason), std::runtime_error(getMessage(reason).append("\n").append(addMessage)) { }
+
+ManagerException::ManagerException(const std::string& message)
+: std::runtime_error(message) {}
+
+ManagerException::ManagerException(const char* message)
+: std::runtime_error(message) {}
+
+const ManagerExceptionKind ManagerException::getExceptionKind() const {
+    return reason;
+}
+
+std::string ManagerException::getMessage(ManagerExceptionKind reason) {
+    switch (reason)
+    {
+    case ManagerExceptionKind::CLIEmptyString:
+        return std::string("Invalid argument!");
+    case ManagerExceptionKind::CLIParseError:
+        return std::string("Failed to Parse CLI!");
+    case ManagerExceptionKind::DBEntryNotFound:
+        return std::string("Database entry not found!");
+    case ManagerExceptionKind::DBInitFail:
+        return std::string("Database init fail!");
+    case ManagerExceptionKind::EmptyUpdatePrompt:
+        return std::string("Not enough data to update item!");
+    case ManagerExceptionKind::EmptyAddItem:
+        return std::string("Not enough data to add item!");
+    case ManagerExceptionKind::FSFileNotCreated:
+        return std::string("Failed to create file!");
+    case ManagerExceptionKind::FSDirectoryNotCreated:
+        return std::string("Failed to create directory!");
+    case ManagerExceptionKind::FSNotADirectory:
+        return std::string("Not a directory!");
+    case ManagerExceptionKind::InvalidItemID:
+        return std::string("Invalid ID!");
+    case ManagerExceptionKind::InvalidItemKind:
+        return std::string("Invalid Item Kind!");
+    case ManagerExceptionKind::InvalidUpdateID:
+        return std::string("Invalid Update ID!");
+    case ManagerExceptionKind::LibraryInvalidItem:
+        return std::string("Invalid item!");
+    case ManagerExceptionKind::LibraryItemKindNotFound:
+        return std::string("Library item kind not found!");
+    case ManagerExceptionKind::LibraryItemNotFound:
+        return std::string("Library item not found!");
+    case ManagerExceptionKind::NoArgs:
+        return std::string("No arguments parsed!");
+    case ManagerExceptionKind::UserAborted:
+        return std::string("Operation aborted by user!");
+    default:
+        return std::string("Unsupported abort!");
+    }
+}
+
 DatabaseException::DatabaseException(DatabaseExceptionKind kind) : kind(kind) {
     setMessage();
 }

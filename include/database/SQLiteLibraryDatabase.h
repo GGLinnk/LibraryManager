@@ -1,6 +1,8 @@
 #pragma once
 
-#define DEFAULT_DB_FILENAME "library.db"
+#include "config.h"
+
+#define DEFAULT_DB_FILENAME PROJECT_NAME ".db"
 
 #include "LibraryDatabase.h"
 #include "LibraryItem.h"
@@ -10,21 +12,33 @@
 
 class SQLiteLibraryDatabase : public LibraryDatabase {
 public:
-    SQLiteLibraryDatabase(const std::filesystem::path &dataFolder, const std::string &databaseFileName);
-    SQLiteLibraryDatabase(const std::filesystem::path &dataFolder);
+    SQLiteLibraryDatabase(const std::filesystem::path& dataFolder, const std::string& databaseFilename);
 
-    const std::filesystem::path getLibraryDatabasePath(const std::filesystem::path &appDataFolder, const std::string &dbFileName);
+    const std::filesystem::path getLibraryDatabasePath(const std::filesystem::path& appDataFolder, const std::string& dbFileName);
 
-    bool isInitialized() const override;
+    LibraryItem fetchFullItem(const LibraryItem& libraryItem) override;
+    ItemKind fetchFullItemKind(const ItemKind& itemKind) override;
 
-    bool checkItemDB(const LibraryItem& item) override;
-    void saveItem(const LibraryItem& item) override;
-    void saveItemKind(const ItemKind& kind) override;
+    bool checkItem(const LibraryItem& libraryItem) override;
+    bool checkItem(const ItemKind& itemKind) override;
+
+    bool saveItem(const LibraryItem& libraryItem) override;
+    bool saveItem(const ItemKind& itemKind) override;
+
+    bool removeItem(const LibraryItem& libraryItem) override;
+    bool removeItem(const ItemKind& itemKind) override;
 
 private:
+    //std::unique_ptr<SQLite::Database> database;
     SQLite::Database database;
-    bool initialized = false;
 
-    bool checkItemExists(const LibraryItem& item);
-    bool checkItemIdExists(long int id);
+    SQLite::Statement fetchTableRow(const long int id, const std::string& tableName);
+    SQLite::Statement fetchTableRow(const std::string& name, const std::string& tableName); 
+
+    bool checkItemAlreadyExists(const LibraryItem& item);
+    bool checkItemAlreadyExists(const ItemKind& itemKind);
+    
+    bool checkIdAlreadyExists(const long int id, const std::string& tableName);
+
+    bool removeTableRow(const long int id, const std::string& tableName);
 };

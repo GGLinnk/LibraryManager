@@ -1,16 +1,20 @@
 #include "LibraryManager.h"
 
 #include <iostream>
-#include <spdlog/spdlog.h>
 
 int main(int argc, char *argv[]) {
+    int status = EXIT_FAILURE;
+
     try {
         LibraryManager libraryManager = LibraryManager(argc, argv);
-    } catch (const CLI::ParseError &e) {
-        std::cout << e.what();
+
+        status = EXIT_SUCCESS;
+    } catch (const ManagerException &e) {
+        std::cout << "[" << e.getExceptionKind() << "] " << e.what() << std::endl;
+        status = e.getExceptionKind();
     } catch (...) {
-        std::cerr << "Unsupported error occured !" << std::endl;
+        std::cout << "Unsupported error happend!" << std::endl;
     }
-   
-    return EXIT_SUCCESS;
+
+    return status;
 }

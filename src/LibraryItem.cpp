@@ -2,8 +2,14 @@
 
 LibraryItem::LibraryItem() {}
 
+LibraryItem::LibraryItem(long int id)
+: empty(false) { }
+
+LibraryItem::LibraryItem(const std::string& name, const std::string& author, const std::string& description, ItemKind itemKind)
+: id(id), name(name), author(author), description(description), itemKind(itemKind), empty(false) { }
+
 LibraryItem::LibraryItem(long int id, const std::string& name, const std::string& author, const std::string& description, ItemKind itemKind)
-    : id(id), name(name), author(author), description(description), itemKind(itemKind) {}
+: id(id), name(name), author(author), description(description), itemKind(itemKind), empty(false), initialized(true) { }
 
 long int LibraryItem::getId() const {
     return id;
@@ -31,4 +37,8 @@ void LibraryItem::setInitialized() {
 
 bool LibraryItem::isInitialized() const {
     return initialized;
+}
+
+bool LibraryItem::isEmpty() const {
+    return empty;
 }

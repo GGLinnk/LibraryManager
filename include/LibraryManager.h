@@ -1,6 +1,7 @@
 #pragma once
 
 #include "config.h"
+#include "helpers.h"
 
 #include "LibraryItem.h"
 #include "LibraryItemKind.h"
@@ -15,43 +16,82 @@
 
 #include <string>
 #include <filesystem>
+#include <memory>
+
+namespace fs = std::filesystem;
+
+enum class OperationKind {
+    None,
+    Add,
+    Update,
+    Remove,
+    Search
+};
 
 class LibraryManager {
 private:
     CLI::App app;
-    LibraryItem item;
+    LibraryItem libraryItem;
+    ItemKind itemKind;
+
+    OperationKind operationKind = OperationKind::None;
 
     std::unique_ptr<LibraryDatabase> libraryDatabase;
     std::unique_ptr<LibraryUI> libraryUI;
-    //LibraryUI* libraryUI = new FTXUILibraryUI();
+
+    bool kindMode;
 
     bool arguments_parsed = false;
     bool initialized = false;
     bool interactive = false;
-    bool ui_disabled = UI_DISABLED;
+    bool ui_disabled = false || UI_DISABLED;
 
-    std::filesystem::path appDataFolder;
-    std::filesystem::path databaseFilePath;
+    fs::path appDataFolder;
+    std::string databaseFilename;
 
-    const std::filesystem::path getAppDataFolder(const std::string &appName);
+    void setAppDataFolder(fs::path newAppDataFolder);
+    void setDatabaseFilename(std::string databaseFilename);
 
-    void configureOptions();
-    void configureSubcommands();
-
-    void handleCommands(CLI::App* cmd);
+    void cliAppConfig();
+    void configureCallbacks();
     
+    void handleAppPreparse(CLI::App* cmd);
+    void handleItemModePreparse(CLI::App* currentMode);
+    void handleItemKindModePreparse(CLI::App* currentMode);
+
+    void handleAddItemPreparse(CLI::App* cmd);
+    void handleUpdateItemPreparse(CLI::App* cmd);
+    void handleRemoveItemPreparse(CLI::App* cmd);
+
     void handleItemCommand(CLI::App* cmd);
-    void handleSearchCommand(CLI::App* cmd);
+    void handleItemSearchCommand(CLI::App* cmd);
+    void handleRemoveItemCommand(CLI::App* cmd);
 
-    void handleAddPreParse(CLI::App* cmd, size_t count);
-    void handlUpdatePreParse(CLI::App* cmd, size_t count);
+    void handleItemKindCommand(CLI::App* cmd);
+    void handleItemKindSearchCommand(CLI::App* cmd);
+    void handleRemoveItemKindCommand(CLI::App* cmd);
     
-    LibraryItem gatherMissingInfoInteractive(long int id, std::string name, std::string author, std::string description, std::string kindIdOrrString);
+    bool promptIdForUpdate(long int& id);
+    LibraryItem gatherMissingItemInfoInteractive(
+        long int id,
+        std::string& name,
+        std::string& author,
+        std::string& description,
+        std::string& kindIdOrrString,
+        bool update
+    );
+
+    ItemKind gatherMissingItemKindInfoInteractive(
+        long int id,
+        std::string& name,
+        bool update
+    );
 
     int parse(int argc, char *argv[]);
-    void init();
-    
+    void fullInit();
+    void applyDatabaseChanges();
+    bool promptItemDeletion();
+
 public:
     LibraryManager(int argc, char *argv[]);
-
 };

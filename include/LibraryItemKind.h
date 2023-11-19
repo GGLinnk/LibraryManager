@@ -8,13 +8,13 @@ private:
     std::string name;
 
     bool initialized = false;
-    bool empty = false;
+    bool empty = true;
 
 public:
     ItemKind();
     ItemKind(long int id);
-    ItemKind(const std::string &name);
-    ItemKind(long int id, const std::string &name);
+    ItemKind(const std::string& name);
+    ItemKind(long int id, const std::string& name);
 
     bool setInitialized();
     bool isInitialized() const;

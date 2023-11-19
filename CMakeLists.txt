@@ -5,7 +5,12 @@ project(LibraryManager
   VERSION 0.1.0
 )
 
+if(MSVC AND (MSVC_VERSION LESS 1910))
+    message(FATAL_ERROR "MSVC version 2017 or newer is required.")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(cmake/CPM.cmake)
 
@@ -17,10 +22,6 @@ CPMAddPackage("gh:ArthurSonzogni/ftxui#v5.0.0")
 message("Adding SQLiteCpp 3.3.1")
 CPMAddPackage("gh:SRombauts/SQLiteCpp#3.3.1")
 #add_subdirectory(${CMAKE_SOURCE_DIR}/lib/SQLiteCpp-3.3.1)
-
-message("Adding spdlog 1.12.0")
-CPMAddPackage("gh:gabime/spdlog#v1.12.0")
-#add_subdirectory(${CMAKE_SOURCE_DIR}/lib/spdlog-1.12.0)
 
 message("Adding CLI11 2.3.2")
 CPMAddPackage("gh:CLIUtils/CLI11#v2.3.2")
@@ -46,6 +47,4 @@ target_link_libraries(LibraryManager
   PRIVATE ftxui::component
   PRIVATE CLI11::CLI11
   PRIVATE SQLiteCpp
-  PRIVATE spdlog
-  #PRIVATE argh
 )

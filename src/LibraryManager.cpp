@@ -2,155 +2,322 @@
 
 #include <iostream>
 
-LibraryManager::LibraryManager(int argc, char *argv[]) : app{PROJECT_NAMEVER} {
+LibraryManager::LibraryManager(int argc, char *argv[]) :
+    app{PROJECT_NAMEVER},
+    appDataFolder(fs::path(std::getenv(APPDATAROOT)).append(PROJECT_NAME)
+) {
+    try {
+        cliAppConfig();
+        configureCallbacks();
+
+        if (parse(argc, argv))
+            throw ManagerException(ManagerExceptionKind::CLIParseError);
+        
+        fullInit();
+        applyDatabaseChanges();
+    } catch (const CLI::ParseError& e) {
+        throw ManagerException(ManagerExceptionKind::CLIParseError, e.what());
+    }
+}
+
+void LibraryManager::setAppDataFolder(fs::path newAppDataFolder) {
+    if (newAppDataFolder.empty())
+        throw ManagerException(ManagerExceptionKind::CLIEmptyString, "- Empty application data folder argument!");
+
+    newAppDataFolder = fs::absolute(newAppDataFolder);
+
+    if (!fs::exists(newAppDataFolder))
+        if (!fs::create_directories(newAppDataFolder))
+            throw ManagerException(ManagerExceptionKind::FSDirectoryNotCreated, std::string("- ").append(newAppDataFolder.string()).append("\n"));
+
+    if (!fs::is_directory(newAppDataFolder))
+        throw ManagerException(ManagerExceptionKind::FSNotADirectory, std::string("- ").append(newAppDataFolder.string()).append("\n"));
+
+    appDataFolder = newAppDataFolder;
+
+    std::cout << PROJECT_NAME << " app data folder sucessfully set: " << newAppDataFolder.string() << std::endl;
+}
+
+void LibraryManager::setDatabaseFilename(std::string newDatabaseFilename) {
+    if (newDatabaseFilename.empty())
+        throw ManagerException(ManagerExceptionKind::CLIEmptyString, "- Empty database filename!");
+
+    databaseFilename = newDatabaseFilename;
+
+    std::cout << PROJECT_NAME << " database filename sucessfully set: " << newDatabaseFilename << std::endl;
+}
+
+void LibraryManager::cliAppConfig() {
     app.allow_windows_style_options();
     app.require_subcommand(1, 1);
+    app.ignore_case();
 
-    configureOptions();
-    configureSubcommands();
-
-    parse(argc, argv);
-    //init();
+    app.add_option_function<fs::path>("-d,--data-folder", [this](fs::path path) { setAppDataFolder(path); }, "Overrides the app data folder path.");
+    app.add_option<std::string>("-f,--database-filename", databaseFilename, "Overrides the database file name. If applicable.");
 }
 
-const std::filesystem::path LibraryManager::getAppDataFolder(const std::string &appName) {
-#ifdef WIN32
-    std::filesystem::path def_appdata(std::getenv("LOCALAPPDATA"));
-#elif UNIX or __linux__
-    std::filesystem::path def_appdata(std::getenv("HOME"));
-#endif
+void LibraryManager::configureCallbacks() {
+    CLI::App * itemsCommand = app.add_subcommand("item", "Manage library items");
+    itemsCommand->preparse_callback([this, itemsCommand](size_t _) { handleItemModePreparse(itemsCommand); });
 
-    def_appdata.append(appName);
-    std::filesystem::create_directories(def_appdata);
-
-    return def_appdata;
+    CLI::App * itemkindsCommand = app.add_subcommand("kind", "Manage library item categories");
+    itemkindsCommand->preparse_callback([this, itemkindsCommand](size_t _) { handleItemKindModePreparse(itemkindsCommand); });
 }
 
-void LibraryManager::configureOptions() {
-    //app.add_option("-d,--data-folder", appDataFolder, "Overrides the app data folder path.");
-    //app.add_option("-f,--database-file", databaseFilePath, "Overrides the database file path");
-    app.add_flag("-n,--no-ui", ui_disabled, "Prevent UI Mode");
+void LibraryManager::handleItemKindModePreparse(CLI::App* currentMode) {
+    this->kindMode = true;
 
-    //std::cout << appDataFolder << std::endl;
-    // Add more options as needed
+    CLI::App* addCommand = currentMode->add_subcommand("add", "Add a library item kind");
+    addCommand->preparse_callback([this, addCommand](size_t _) { handleAddItemPreparse(addCommand); });
+    addCommand->callback([this, addCommand]() { handleItemKindCommand(addCommand); });
+
+    CLI::App* updateCommand = currentMode->add_subcommand("update", "Update a library item kind");
+    updateCommand->preparse_callback([this, updateCommand](size_t _) { handleUpdateItemPreparse(updateCommand); });
+    updateCommand->callback([this, updateCommand]() { handleItemKindCommand(updateCommand); });
+
+    CLI::App* removeCommand = currentMode->add_subcommand("remove", "Remove a library item kind");
+    removeCommand->preparse_callback([this, removeCommand](size_t _) { handleRemoveItemPreparse(removeCommand); });
+    removeCommand->callback([this, removeCommand]() { handleRemoveItemKindCommand(removeCommand); });
+
+    /* CLI::App* searchCommand = currentMode->add_subcommand("search", "Search for library item kinds"); */
+    /* searchCommand->callback([this, searchCommand]() { handleItemKindSearchCommand(searchCommand); }); */
 }
 
-void LibraryManager::configureSubcommands() {
-    CLI::App* addCommand = app.add_subcommand("add", "Add a library item or item kind");
-    addCommand->preparse_callback([this, addCommand](size_t count) { handleAddPreParse(addCommand, count); });
+void LibraryManager::handleItemModePreparse(CLI::App* currentMode) {
+    CLI::App* addCommand = currentMode->add_subcommand("add", "Add a library item");
+    addCommand->preparse_callback([this, addCommand](size_t count) { handleAddItemPreparse(addCommand); });
     addCommand->callback([this, addCommand]() { handleItemCommand(addCommand); });
 
-    CLI::App* removeCommand = app.add_subcommand("remove", "Remove a library item or item kind");
-    removeCommand->callback([this, removeCommand]() { handleItemCommand(removeCommand); });
-
-    CLI::App* searchCommand = app.add_subcommand("search", "Search for library items or item kinds");
-    searchCommand->callback([this, searchCommand]() { handleSearchCommand(searchCommand); });
-
-    CLI::App* updateCommand = app.add_subcommand("update", "Update a library item or item kind");
-    updateCommand->preparse_callback([this, updateCommand](size_t count) { handleAddPreParse(updateCommand, count); });
+    CLI::App* updateCommand = currentMode->add_subcommand("update", "Update a library item");
+    updateCommand->preparse_callback([this, updateCommand](size_t count) { handleUpdateItemPreparse(updateCommand); });
     updateCommand->callback([this, updateCommand]() { handleItemCommand(updateCommand); });
+
+    CLI::App* removeCommand = currentMode->add_subcommand("remove", "Remove a library item");
+    removeCommand->preparse_callback([this, removeCommand](size_t count) { handleRemoveItemPreparse(removeCommand); });
+    removeCommand->callback([this, removeCommand]() { handleRemoveItemCommand(removeCommand); });
+
+    /* CLI::App* searchCommand = currentMode->add_subcommand("search", "Search for library items"); */
+    /* searchCommand->callback([this, searchCommand]() { handleItemSearchCommand(searchCommand); }); */
 }
 
-void LibraryManager::handleCommands(CLI::App* cmd) {
-    // Add more logic to handle other commands and options
-}
-
-void LibraryManager::handleAddPreParse(CLI::App* cmd, size_t _) {
+void LibraryManager::handleAddItemPreparse(CLI::App* cmd) {
     cmd->add_option("-n,--name", "Name of the item you want to add.");
+
+    if (kindMode) return;
+
     cmd->add_option("-a,--author", "Author of the item you want to add.");
     cmd->add_option("-d,--description", "Description of the item you want to add.");
-    cmd->add_option("-k,--kind", "Kind of the item you want to add.");
+    cmd->add_option("-i,--item-kind", "Kind of the item you want to add.");
 }
 
-void LibraryManager::handlUpdatePreParse(CLI::App* cmd, size_t _) {
+void LibraryManager::handleUpdateItemPreparse(CLI::App* cmd) {
     cmd->add_option("-i,--id", "ID of the item you want to update.");
     cmd->add_option("-n,--name", "Name of the item you want to update.");
+
+    if (kindMode) return;
+
     cmd->add_option("-a,--author", "Author of the item you want to update.");
     cmd->add_option("-d,--description", "Description of the item you want to update.");
-    cmd->add_option("-k,--kind", "Kind of the item you want to update.");
+    cmd->add_option("-i,--item-kind", "Kind of the item you want to update.");
+}
+
+void LibraryManager::handleRemoveItemPreparse(CLI::App* cmd) {
+    cmd->add_option("-i,--id", "ID of the item you want to remove.");
 }
 
 void LibraryManager::handleItemCommand(CLI::App* cmd) {
-    CLI::Option* idOption = cmd->get_option("--id");
-    CLI::Option* nameOption = cmd->get_option("--name");
-    CLI::Option* authorOption = cmd->get_option("--author");
-    CLI::Option* descriptionOption = cmd->get_option("--description");
-    CLI::Option* kindOption = cmd->get_option("--kind");
+    CLI::Option* idOption = nullptr;
+
+    try {
+        idOption = cmd->get_option("--id");
+        operationKind = OperationKind::Update;
+    } catch (const CLI::OptionNotFound& e) {
+        operationKind = OperationKind::Add;
+    }
 
     long int id = idOption ? idOption->as<long int>() : 0;
-    std::string name = nameOption ? nameOption->as<std::string>() : "";
-    std::string author = authorOption ? authorOption->as<std::string>() : "";
-    std::string description = descriptionOption ? descriptionOption->as<std::string>() : "";
-    std::string kindIdOrString = kindOption ? kindOption->as<std::string>() : "";
+    std::string name = cmd->get_option("--name")->as<std::string>();
+    std::string author = cmd->get_option("--author")->as<std::string>();
+    std::string description = cmd->get_option("--description")->as<std::string>();
+    std::string kindIdOrString = cmd->get_option("--item-kind")->as<std::string>();
 
-    if (ui_disabled)
-        item = LibraryManager::gatherMissingInfoInteractive(id, name, author, description, kindIdOrString);
-    #ifndef UI_DISABLED
-    else
-        item = libraryUI->gatherMissingInfoInteractiveUI(id, name, author, description, kindIdOrString);
-    #endif
-
-    if (!libraryDatabase->checkItemDB(item)) {
-        throw std::runtime_error("Can't update database, item is invalid !");
-    }
+    libraryItem = LibraryManager::gatherMissingItemInfoInteractive(id, name, author, description, kindIdOrString, operationKind == OperationKind::Update);
 }
 
-LibraryItem LibraryManager::gatherMissingInfoInteractive(long int id, std::string name, std::string author, std::string description, std::string kindIdOrString) {
-    ItemKind itemKind;
+void LibraryManager::handleItemKindCommand(CLI::App* cmd) {
+    CLI::Option* idOption = nullptr;
 
-    if (name.empty()) {
-        std::cout << "Enter item name: ";
-        std::getline(std::cin, name);
+    try {
+        idOption = cmd->get_option("--id");
+        operationKind = OperationKind::Update;
+    } catch (const CLI::OptionNotFound& e) {
+        operationKind = OperationKind::Add;
     }
 
-    if (author.empty()) {
-        std::cout << "Enter author: ";
-        std::getline(std::cin, author);
-    }
+    long int id = idOption ? idOption->as<long int>() : 0;
+    std::string name = cmd->get_option("--name")->as<std::string>();
 
-    if (description.empty()) {
-        std::cout << "Enter description: ";
-        std::getline(std::cin, description);
-    }
+    itemKind = LibraryManager::gatherMissingItemKindInfoInteractive(id, name, operationKind == OperationKind::Update);
+}
 
-    if (kindIdOrString.empty()) {
-        std::cout << "Enter kind: ";
-        std::getline(std::cin, kindIdOrString);
+void LibraryManager::handleRemoveItemCommand(CLI::App* cmd) {
+    long int id = cmd->get_option("--id")->as<long int>();
 
+    if (id > 0)
+        libraryItem = LibraryItem(id);
+    else if (id <= 0)
+        throw ManagerException(ManagerExceptionKind::InvalidUpdateID, "- Can't edit ID less or equal than 0!");
+}
+
+void LibraryManager::handleRemoveItemKindCommand(CLI::App* cmd) {
+    long int id = cmd->get_option("--id")->as<long int>();
+
+    if (id > 0)
+        itemKind = ItemKind(id);
+    else if (id <= 0)
+        throw ManagerException(ManagerExceptionKind::InvalidUpdateID, "- Can't edit ID less or equal than 0!");
+}
+
+bool LibraryManager::promptIdForUpdate(long int& id) {
+    std::string itemVar;
+
+    for (short tries = 0; id <= 0 && tries <= 3; tries++) {
+        if (tries > 0)
+            std::cout << "Please enter a valid id! (" << tries << "/3)" << std::endl;
+        std::cout << "Enter id: ";
+        std::getline(std::cin, itemVar);
         try {
-            int intValue = std::stoi(kindIdOrString);
-            itemKind = ItemKind(intValue);
-        } catch (std::invalid_argument&) {
-            itemKind = ItemKind(kindIdOrString);
-        }
+            id = std::stoi(itemVar);
+        } catch (std::invalid_argument&) { }
     }
 
-    return LibraryItem(id, name, author, description, itemKind);
+    if (id > 0)
+        return true;
+
+    return false;
 }
 
-void LibraryManager::handleSearchCommand(CLI::App* cmd) {
+LibraryItem LibraryManager::gatherMissingItemInfoInteractive(
+    long int id,
+    std::string& name,
+    std::string& author,
+    std::string& description,
+    std::string& kindIdOrString,
+    bool update
+) {
+    if (update && !promptIdForUpdate(id))
+        throw ManagerException(ManagerExceptionKind::InvalidUpdateID);
+
+    if (!getMissingInfo(id, name, "name"))
+        throw ManagerException(ManagerExceptionKind::EmptyAddItem);
+    if (!getMissingInfo(id, author, "author"))
+        throw ManagerException(ManagerExceptionKind::EmptyAddItem);
+    if (!getMissingInfo(id, description, "description"))
+        throw ManagerException(ManagerExceptionKind::EmptyAddItem);
+    if (!getMissingInfo(id, kindIdOrString, "kind"))
+        throw ManagerException(ManagerExceptionKind::EmptyAddItem);
+
+    if (update && name.empty() && author.empty() && description.empty() && kindIdOrString.empty())
+        throw ManagerException(ManagerExceptionKind::EmptyUpdatePrompt);
+
+    return LibraryItem(id, name, author, description, ItemKind(kindIdOrString));
+}
+
+ItemKind LibraryManager::gatherMissingItemKindInfoInteractive(
+    long int id,
+    std::string& name,
+    bool update
+) {
+    if (update && !promptIdForUpdate(id))
+        throw ManagerException(ManagerExceptionKind::InvalidUpdateID);
+
+    if (!getMissingInfo(id, name, "name"))
+        throw ManagerException(ManagerExceptionKind::EmptyAddItem);
+
+    if (update && name.empty())
+        throw ManagerException(ManagerExceptionKind::EmptyUpdatePrompt);
+
+    return ItemKind(id, name);
+}
+
+void LibraryManager::handleItemSearchCommand(CLI::App* cmd) {
+    // Implement logic for searching library items or item kinds
+}
+
+void LibraryManager::handleItemKindSearchCommand(CLI::App* cmd) {
     // Implement logic for searching library items or item kinds
 }
 
 int LibraryManager::parse(int argc, char *argv[]) {
-    CLI11_PARSE(app, argc, argv);
+    auto subcommands = app.get_subcommands();
+
+    try {
+        app.parse(argc, argv);
+    } catch(const CLI::ParseError &e) {
+        return app.exit(e);
+    }
 
     arguments_parsed = true;
 
     return EXIT_SUCCESS;
 }
 
-void LibraryManager::init() {
-    if (!arguments_parsed) {
-        throw std::runtime_error("You need to parse arguments first.");
-    }
+void LibraryManager::fullInit() {
+    if (!arguments_parsed)
+        return; //throw ManagerException(ManagerExceptionKind::NoArgs);
 
-    libraryDatabase = std::make_unique<SQLiteLibraryDatabase>(appDataFolder);
-    libraryUI = std::make_unique<FTXUILibraryUI>();
-
-    if (!libraryDatabase->isInitialized()) {
-        throw std::runtime_error("Database is not initialized !");
-    }
+    libraryDatabase = std::make_unique<SQLiteLibraryDatabase>(appDataFolder, databaseFilename);
+    //libraryUI = std::make_unique<FTXUILibraryUI>();
 
     initialized = true;
+}
+
+void LibraryManager::applyDatabaseChanges() {
+    if (!initialized)
+        return; //throw ManagerException(ManagerExceptionKind::NotInitialized);
+
+    switch(operationKind) {
+        case OperationKind::None:
+            throw ManagerException();
+        case OperationKind::Update:
+        case OperationKind::Add: {
+            if (kindMode) {
+                libraryDatabase->checkItem(itemKind);
+                libraryDatabase->saveItem(itemKind);
+            } else {
+                libraryDatabase->checkItem(libraryItem);
+                libraryDatabase->saveItem(libraryItem);
+            }
+            break;
+        }
+        case OperationKind::Remove: {
+            if (kindMode) {
+                itemKind = libraryDatabase->fetchFullItemKind(itemKind);
+                if (promptItemDeletion())
+                    libraryDatabase->removeItem(itemKind);
+            } else {
+                libraryItem = libraryDatabase->fetchFullItem(libraryItem);
+                if (promptItemDeletion())
+                    libraryDatabase->removeItem(libraryItem);
+            }
+        }
+        default:
+            throw ManagerException("Unsupported yet");
+    }
+}
+
+bool LibraryManager::promptItemDeletion() {
+    std::cout << "Are you sure you want to remove:" << std::endl;
+    if (kindMode)
+        std::cout << itemKind.getName() << " category ?" << std::endl;
+    else
+        std::cout << libraryItem.getName() << " by " << libraryItem.getAuthor() << " ?" << std::endl;
+
+    try {
+        return getYesNoInputWithDefault();
+    } catch (std::runtime_error &e) {
+        return false;
+    }
+
+    return false;
 }
