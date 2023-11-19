@@ -12,7 +12,7 @@ LibraryManager::LibraryManager(int argc, char *argv[]) :
 
         if (parse(argc, argv))
             throw ManagerException(ManagerExceptionKind::CLIParseError);
-        
+
         fullInit();
         applyDatabaseChanges();
     } catch (const CLI::ParseError& e) {
@@ -66,6 +66,23 @@ void LibraryManager::configureCallbacks() {
     itemkindsCommand->preparse_callback([this, itemkindsCommand](size_t _) { handleItemKindModePreparse(itemkindsCommand); });
 }
 
+void LibraryManager::handleItemModePreparse(CLI::App* currentMode) {
+    CLI::App* addCommand = currentMode->add_subcommand("add", "Add a library item");
+    addCommand->preparse_callback([this, addCommand](size_t count) { handleAddItemPreparse(addCommand); });
+    addCommand->callback([this, addCommand]() { handleItemCommand(addCommand); });
+
+    CLI::App* updateCommand = currentMode->add_subcommand("update", "Update a library item");
+    updateCommand->preparse_callback([this, updateCommand](size_t count) { handleUpdateItemPreparse(updateCommand); });
+    updateCommand->callback([this, updateCommand]() { handleItemCommand(updateCommand); });
+
+    CLI::App* removeCommand = currentMode->add_subcommand("remove", "Remove a library item");
+    removeCommand->preparse_callback([this, removeCommand](size_t count) { handleRemoveItemPreparse(removeCommand); });
+    removeCommand->callback([this, removeCommand]() { handleRemoveItemCommand(removeCommand); });
+
+    /* CLI::App* searchCommand = currentMode->add_subcommand("search", "Search for library items"); */
+    /* searchCommand->callback([this, searchCommand]() { handleItemSearchCommand(searchCommand); }); */
+}
+
 void LibraryManager::handleItemKindModePreparse(CLI::App* currentMode) {
     this->kindMode = true;
 
@@ -83,23 +100,6 @@ void LibraryManager::handleItemKindModePreparse(CLI::App* currentMode) {
 
     /* CLI::App* searchCommand = currentMode->add_subcommand("search", "Search for library item kinds"); */
     /* searchCommand->callback([this, searchCommand]() { handleItemKindSearchCommand(searchCommand); }); */
-}
-
-void LibraryManager::handleItemModePreparse(CLI::App* currentMode) {
-    CLI::App* addCommand = currentMode->add_subcommand("add", "Add a library item");
-    addCommand->preparse_callback([this, addCommand](size_t count) { handleAddItemPreparse(addCommand); });
-    addCommand->callback([this, addCommand]() { handleItemCommand(addCommand); });
-
-    CLI::App* updateCommand = currentMode->add_subcommand("update", "Update a library item");
-    updateCommand->preparse_callback([this, updateCommand](size_t count) { handleUpdateItemPreparse(updateCommand); });
-    updateCommand->callback([this, updateCommand]() { handleItemCommand(updateCommand); });
-
-    CLI::App* removeCommand = currentMode->add_subcommand("remove", "Remove a library item");
-    removeCommand->preparse_callback([this, removeCommand](size_t count) { handleRemoveItemPreparse(removeCommand); });
-    removeCommand->callback([this, removeCommand]() { handleRemoveItemCommand(removeCommand); });
-
-    /* CLI::App* searchCommand = currentMode->add_subcommand("search", "Search for library items"); */
-    /* searchCommand->callback([this, searchCommand]() { handleItemSearchCommand(searchCommand); }); */
 }
 
 void LibraryManager::handleAddItemPreparse(CLI::App* cmd) {
@@ -255,8 +255,6 @@ void LibraryManager::handleItemKindSearchCommand(CLI::App* cmd) {
 }
 
 int LibraryManager::parse(int argc, char *argv[]) {
-    auto subcommands = app.get_subcommands();
-
     try {
         app.parse(argc, argv);
     } catch(const CLI::ParseError &e) {

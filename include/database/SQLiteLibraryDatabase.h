@@ -20,13 +20,13 @@ public:
     ItemKind fetchFullItemKind(const ItemKind& itemKind) override;
 
     bool checkItem(const LibraryItem& libraryItem) override;
-    bool checkItem(const ItemKind& itemKind) override;
+    bool checkItemKind(const ItemKind& itemKind) override;
 
     bool saveItem(const LibraryItem& libraryItem) override;
-    bool saveItem(const ItemKind& itemKind) override;
+    bool saveItemKind(const ItemKind& itemKind) override;
 
     bool removeItem(const LibraryItem& libraryItem) override;
-    bool removeItem(const ItemKind& itemKind) override;
+    bool removeItemKind(const ItemKind& itemKind) override;
 
 private:
     //std::unique_ptr<SQLite::Database> database;

@@ -17,13 +17,13 @@ public:
     virtual ItemKind fetchFullItemKind(const ItemKind& itemKind) = 0;
 
     virtual bool checkItem(const LibraryItem& libraryItem) = 0;
-    virtual bool checkItem(const ItemKind& itemKind) = 0;
+    virtual bool checkItemKind(const ItemKind& itemKind) = 0;
 
     virtual bool saveItem(const LibraryItem& libraryItem) = 0;
-    virtual bool saveItem(const ItemKind& itemKind) = 0;
+    virtual bool saveItemKind(const ItemKind& itemKind) = 0;
 
     virtual bool removeItem(const LibraryItem& libraryItem) = 0;
-    virtual bool removeItem(const ItemKind& itemKind) = 0;
+    virtual bool removeItemKind(const ItemKind& itemKind) = 0;
 
     /* virtual std::vector<LibraryItem> getAllItems() const = 0;
     virtual std::vector<LibraryItem> searchItems(const std::string& searchTerm) const = 0;

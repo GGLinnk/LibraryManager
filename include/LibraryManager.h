@@ -39,7 +39,7 @@ private:
     std::unique_ptr<LibraryDatabase> libraryDatabase;
     std::unique_ptr<LibraryUI> libraryUI;
 
-    bool kindMode;
+    bool kindMode = false;
 
     bool arguments_parsed = false;
     bool initialized = false;
