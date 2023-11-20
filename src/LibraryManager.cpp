@@ -62,12 +62,12 @@ void LibraryManager::configureCallbacks() {
     CLI::App * itemsCommand = app.add_subcommand("item", "Manage library items");
     itemsCommand->preparse_callback([this, itemsCommand](size_t _) { handleItemModePreparse(itemsCommand); });
 
-    CLI::App * itemkindsCommand = app.add_subcommand("kind", "Manage library item categories");
-    itemkindsCommand->preparse_callback([this, itemkindsCommand](size_t _) { handleItemKindModePreparse(itemkindsCommand); });
+    CLI::App * itemCategoriesCommand = app.add_subcommand("category", "Manage library item categories");
+    itemCategoriesCommand->preparse_callback([this, itemCategoriesCommand](size_t _) { handleItemCategoryModePreparse(itemCategoriesCommand); });
 }
 
 void LibraryManager::handleItemModePreparse(CLI::App* currentMode) {
-    this->kindMode = false;
+    this->categoryMode = false;
 
     CLI::App* addCommand = currentMode->add_subcommand("add", "Add a library item");
     addCommand->preparse_callback([this, addCommand](size_t _) { handleAddItemPreparse(addCommand); });
@@ -85,44 +85,44 @@ void LibraryManager::handleItemModePreparse(CLI::App* currentMode) {
     /* searchCommand->callback([this, searchCommand]() { handleItemSearchCommand(searchCommand); }); */
 }
 
-void LibraryManager::handleItemKindModePreparse(CLI::App* currentMode) {
-    this->kindMode = true;
+void LibraryManager::handleItemCategoryModePreparse(CLI::App* currentMode) {
+    this->categoryMode = true;
 
     CLI::App* addCommand = currentMode->add_subcommand("add", "Add a library item kind");
     addCommand->preparse_callback([this, addCommand](size_t _) { handleAddItemPreparse(addCommand); });
-    addCommand->callback([this, addCommand]() { handleItemKindCommand(addCommand); });
+    addCommand->callback([this, addCommand]() { handleItemCategoryCommand(addCommand); });
 
     CLI::App* updateCommand = currentMode->add_subcommand("update", "Update a library item kind");
     updateCommand->preparse_callback([this, updateCommand](size_t _) { handleUpdateItemPreparse(updateCommand); });
-    updateCommand->callback([this, updateCommand]() { handleItemKindCommand(updateCommand); });
+    updateCommand->callback([this, updateCommand]() { handleItemCategoryCommand(updateCommand); });
 
     CLI::App* removeCommand = currentMode->add_subcommand("remove", "Remove a library item kind");
     removeCommand->preparse_callback([this, removeCommand](size_t _) { handleRemoveItemPreparse(removeCommand); });
-    removeCommand->callback([this, removeCommand]() { handleRemoveItemKindCommand(removeCommand); });
+    removeCommand->callback([this, removeCommand]() { handleRemoveItemCategoryCommand(removeCommand); });
 
     /* CLI::App* searchCommand = currentMode->add_subcommand("search", "Search for library item kinds"); */
-    /* searchCommand->callback([this, searchCommand]() { handleItemKindSearchCommand(searchCommand); }); */
+    /* searchCommand->callback([this, searchCommand]() { handleItemCategorySearchCommand(searchCommand); }); */
 }
 
 void LibraryManager::handleAddItemPreparse(CLI::App* cmd) {
     cmd->add_option("-n,--name", "Name of the item you want to add.");
 
-    if (kindMode) return;
+    if (categoryMode) return;
 
     cmd->add_option("-a,--author", "Author of the item you want to add.");
     cmd->add_option("-d,--description", "Description of the item you want to add.");
-    cmd->add_option("-i,--item-kind", "Kind of the item you want to add.");
+    cmd->add_option("-i,--item-category", "Category of the item you want to add.");
 }
 
 void LibraryManager::handleUpdateItemPreparse(CLI::App* cmd) {
     cmd->add_option("--id", "ID of the item you want to update.");
     cmd->add_option("-n,--name", "Name of the item you want to update.");
 
-    if (kindMode) return;
+    if (categoryMode) return;
 
     cmd->add_option("-a,--author", "Author of the item you want to update.");
     cmd->add_option("-d,--description", "Description of the item you want to update.");
-    cmd->add_option("-i,--item-kind", "Kind of the item you want to update.");
+    cmd->add_option("-i,--item-category", "Category of the item you want to update.");
 }
 
 void LibraryManager::handleRemoveItemPreparse(CLI::App* cmd) {
@@ -143,12 +143,12 @@ void LibraryManager::handleItemCommand(CLI::App* cmd) {
     std::string name = cmd->get_option("--name")->as<std::string>();
     std::string author = cmd->get_option("--author")->as<std::string>();
     std::string description = cmd->get_option("--description")->as<std::string>();
-    std::string kindIdOrString = cmd->get_option("--item-kind")->as<std::string>();
+    std::string kindIdOrString = cmd->get_option("--item-category")->as<std::string>();
 
     libraryItem = LibraryManager::gatherMissingItemInfoInteractive(id, name, author, description, kindIdOrString, operationKind == OperationKind::Update);
 }
 
-void LibraryManager::handleItemKindCommand(CLI::App* cmd) {
+void LibraryManager::handleItemCategoryCommand(CLI::App* cmd) {
     CLI::Option* idOption = nullptr;
 
     try {
@@ -161,7 +161,7 @@ void LibraryManager::handleItemKindCommand(CLI::App* cmd) {
     long long id = idOption ? idOption->as<long long>() : 0;
     std::string name = cmd->get_option("--name")->as<std::string>();
 
-    itemKind = LibraryManager::gatherMissingItemKindInfoInteractive(id, name, operationKind == OperationKind::Update);
+    libraryItemCategory = LibraryManager::gatherMissingItemCategoryInfoInteractive(id, name, operationKind == OperationKind::Update);
 }
 
 void LibraryManager::handleRemoveItemCommand(CLI::App* cmd) {
@@ -175,13 +175,13 @@ void LibraryManager::handleRemoveItemCommand(CLI::App* cmd) {
         throw ManagerException(ManagerExceptionKind::InvalidUpdateID, "- Can't edit ID less or equal than 0!");
 }
 
-void LibraryManager::handleRemoveItemKindCommand(CLI::App* cmd) {
+void LibraryManager::handleRemoveItemCategoryCommand(CLI::App* cmd) {
     long long id = cmd->get_option("--id")->as<long long>();
 
     operationKind = OperationKind::Remove;
 
     if (id > 0)
-        itemKind = ItemKind(id);
+        libraryItemCategory = LibraryItemCategory(id);
     else if (id <= 0)
         throw ManagerException(ManagerExceptionKind::InvalidUpdateID, "- Can't edit ID less or equal than 0!");
 }
@@ -203,16 +203,16 @@ LibraryItem LibraryManager::gatherMissingItemInfoInteractive(
         throw ManagerException(ManagerExceptionKind::EmptyAddItem);
     if (!promptUserString(description, "description", update ? 0 : 3) && !update)
         throw ManagerException(ManagerExceptionKind::EmptyAddItem);
-    if (!promptUserString(kindIdOrString, "kind", update ? 0 : 3) && !update)
+    if (!promptUserString(kindIdOrString, "category", update ? 0 : 3) && !update)
         throw ManagerException(ManagerExceptionKind::EmptyAddItem);
 
     if (update && name.empty() && author.empty() && description.empty() && kindIdOrString.empty())
         throw ManagerException(ManagerExceptionKind::EmptyUpdatePrompt);
 
-    return LibraryItem(id, name, author, description, ItemKind(kindIdOrString));
+    return LibraryItem(id, name, author, description, LibraryItemCategory(kindIdOrString));
 }
 
-ItemKind LibraryManager::gatherMissingItemKindInfoInteractive(
+LibraryItemCategory LibraryManager::gatherMissingItemCategoryInfoInteractive(
     long long id,
     std::string& name,
     bool update
@@ -226,14 +226,14 @@ ItemKind LibraryManager::gatherMissingItemKindInfoInteractive(
     if (update && name.empty())
         throw ManagerException(ManagerExceptionKind::EmptyUpdatePrompt);
 
-    return ItemKind(id, name);
+    return LibraryItemCategory(id, name);
 }
 
 void LibraryManager::handleItemSearchCommand(CLI::App* cmd) {
     // Implement logic for searching library items or item kinds
 }
 
-void LibraryManager::handleItemKindSearchCommand(CLI::App* cmd) {
+void LibraryManager::handleItemCategorySearchCommand(CLI::App* cmd) {
     // Implement logic for searching library items or item kinds
 }
 
@@ -260,11 +260,11 @@ void LibraryManager::finishInit() {
 }
 
 void LibraryManager::applyDatabaseAdd() {
-    if (kindMode) {
-        if (libraryDatabase->saveItemKind(itemKind))
+    if (categoryMode) {
+        if (libraryDatabase->saveItemCategory(libraryItemCategory))
             std::cout << "Category sucessfully added to the database!";
         else
-            throw ManagerException(ManagerExceptionKind::InvalidItemKind);
+            throw ManagerException(ManagerExceptionKind::InvalidItemCategory);
     } else {
         libraryItem = libraryDatabase->fetchFullItem(libraryItem);
 
@@ -276,11 +276,11 @@ void LibraryManager::applyDatabaseAdd() {
 }
 
 void LibraryManager::applyDatabaseUpdate() {
-    if (kindMode) {
-        if (libraryDatabase->saveItemKind(itemKind))
+    if (categoryMode) {
+        if (libraryDatabase->saveItemCategory(libraryItemCategory))
             std::cout << "Category sucessfully updated!";
         else
-            throw ManagerException(ManagerExceptionKind::InvalidItemKind);
+            throw ManagerException(ManagerExceptionKind::InvalidItemCategory);
     } else {
         libraryItem = libraryDatabase->fetchFullItem(libraryItem);
 
@@ -292,11 +292,11 @@ void LibraryManager::applyDatabaseUpdate() {
 }
 
 void LibraryManager::applyDatabaseRemove() {
-    if (kindMode) {
-        itemKind = libraryDatabase->fetchFullItemKind(itemKind);
+    if (categoryMode) {
+        libraryItemCategory = libraryDatabase->fetchFullItemCategory(libraryItemCategory);
 
         if (promptItemDeletion())
-            libraryDatabase->removeItemKind(itemKind);
+            libraryDatabase->removeItemCategory(libraryItemCategory);
         else
             std::cout << "Category not deleted !" << std::endl;
     } else {
@@ -309,19 +309,24 @@ void LibraryManager::applyDatabaseRemove() {
     }
 }
 
+void LibraryManager::databaseSearch() {
+
+}
+
 void LibraryManager::applyDatabaseChanges() {
     if (!initialized)
         return; //throw ManagerException(ManagerExceptionKind::NotInitialized);
 
     switch(operationKind) {
-        case OperationKind::None:
-            throw ManagerException();
         case OperationKind::Add:
             return applyDatabaseAdd();
         case OperationKind::Update:
             return applyDatabaseUpdate();
         case OperationKind::Remove:
             return applyDatabaseRemove();
+        case OperationKind::Search:
+            return databaseSearch();
+        case OperationKind::None:
         default:
             throw ManagerException("Unsupported yet");
     }
@@ -329,8 +334,8 @@ void LibraryManager::applyDatabaseChanges() {
 
 bool LibraryManager::promptItemDeletion() {
     std::cout << "Are you sure you want to remove:" << std::endl;
-    if (kindMode)
-        std::cout << itemKind.getName() << " category ?" << std::endl;
+    if (categoryMode)
+        std::cout << libraryItemCategory.getName() << " category ?" << std::endl;
     else
         std::cout << libraryItem.getName() << " by " << libraryItem.getAuthor() << " ?" << std::endl;
 

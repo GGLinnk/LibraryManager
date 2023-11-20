@@ -2,7 +2,7 @@
 
 #include <string>
 
-class ItemKind {
+class LibraryItemCategory {
 private:
     long long id;
     std::string name;
@@ -11,10 +11,10 @@ private:
     bool empty = true;
 
 public:
-    ItemKind();
-    ItemKind(long long id);
-    ItemKind(const std::string& name);
-    ItemKind(long long id, const std::string& name);
+    LibraryItemCategory();
+    LibraryItemCategory(long long id);
+    LibraryItemCategory(const std::string& name);
+    LibraryItemCategory(long long id, const std::string& name);
 
     bool setInitialized();
     bool isInitialized() const;

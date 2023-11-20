@@ -1,7 +1,7 @@
 #pragma once
 
 #include "LibraryItem.h"
-#include "LibraryItemKind.h"
+#include "LibraryItemCategory.h"
 
 #include <string>
 
@@ -11,5 +11,5 @@ public:
 
     virtual void displayMenu() = 0;
 
-    virtual LibraryItem gatherMissingInfoInteractiveUI(long long id, std::string name, std::string author, std::string description, std::string kindIsOrString) = 0;
+    virtual LibraryItem gatherMissingInfoInteractiveUI(long long id, std::string name, std::string author, std::string description, std::string CategoryIsOrString) = 0;
 };

@@ -9,7 +9,7 @@ SQLiteLibraryDatabase::SQLiteLibraryDatabase(
 {
     try {
         database.exec("CREATE TABLE IF NOT EXISTS " LIBRARY_ITEMS_TABLE_NAME " (id INTEGER PRIMARY KEY, name TEXT, author TEXT, description TEXT, kind INTEGER)");
-        database.exec("CREATE TABLE IF NOT EXISTS " ITEMSKIND_TABLE_NAME " (id INTEGER PRIMARY KEY, name TEXT, removed INTEGER)"); // removed for soft/hard delete logic to come.
+        database.exec("CREATE TABLE IF NOT EXISTS " ITEM_CATEGORIES_TABLE_NAME " (id INTEGER PRIMARY KEY, name TEXT, removed INTEGER)"); // removed for soft/hard delete logic to come.
     } catch(SQLite::Exception& e) {
         throw ManagerException(ManagerExceptionKind::DBInitFail, e.what());
     }
@@ -47,44 +47,44 @@ LibraryItem SQLiteLibraryDatabase::fetchFullItem(const LibraryItem& libraryItem)
     std::string author = (libraryItem.getAuthor().empty()) ? itemQuery.getColumn("author").getText() : libraryItem.getAuthor();
     std::string description = (libraryItem.getDescription().empty()) ? itemQuery.getColumn("description").getText() : libraryItem.getDescription();
 
-    ItemKind itemKind = fetchFullItemKind((libraryItem.getItemKind().isEmpty()) ? itemQuery.getColumn("kind").getInt64() : libraryItem.getItemKind());
+    LibraryItemCategory libraryItemCategory = fetchFullItemCategory((libraryItem.getItemCategory().isEmpty()) ? itemQuery.getColumn("category").getInt64() : libraryItem.getItemCategory());
 
-    return LibraryItem(libraryItem.getId(), name, author, description, itemKind);
+    return LibraryItem(libraryItem.getId(), name, author, description, libraryItemCategory);
 }
 
-ItemKind SQLiteLibraryDatabase::fetchFullItemKind(const ItemKind& itemKind) {
-    if (itemKind.getId() == 0 && itemKind.getName().empty())
-        throw ManagerException(ManagerExceptionKind::InvalidItemKind, "- Empty item kind cannot be fetched!");
+LibraryItemCategory SQLiteLibraryDatabase::fetchFullItemCategory(const LibraryItemCategory& libraryItemCategory) {
+    if (libraryItemCategory.getId() == 0 && libraryItemCategory.getName().empty())
+        throw ManagerException(ManagerExceptionKind::InvalidItemCategory, "- Empty item kind cannot be fetched!");
 
-    if (checkItemKind(itemKind))
-        return itemKind;
+    if (checkItemCategory(libraryItemCategory))
+        return libraryItemCategory;
 
-    SQLite::Statement itemKindQuery = (itemKind.getId() == 0) ?
-        fetchTableRowByName(itemKind.getName(), ITEMSKIND_TABLE_NAME) :
-        fetchTableRowById(itemKind.getId(), ITEMSKIND_TABLE_NAME);
+    SQLite::Statement itemCategoryQuery = (libraryItemCategory.getId() == 0) ?
+        fetchTableRowByName(libraryItemCategory.getName(), ITEM_CATEGORIES_TABLE_NAME) :
+        fetchTableRowById(libraryItemCategory.getId(), ITEM_CATEGORIES_TABLE_NAME);
 
-    if (!itemKindQuery.executeStep())
-        throw ManagerException(ManagerExceptionKind::LibraryItemKindNotFound, "- If you're updating, check that itemKind haven't been deleted");
+    if (!itemCategoryQuery.executeStep())
+        throw ManagerException(ManagerExceptionKind::LibraryItemCategoryNotFound, "- If you're updating, check that libraryItemCategory haven't been deleted");
 
-    long long id = itemKindQuery.getColumn("id").getInt64();
-    std::string name = itemKindQuery.getColumn("name").getText();
+    long long id = itemCategoryQuery.getColumn("id").getInt64();
+    std::string name = itemCategoryQuery.getColumn("name").getText();
 
-    return ItemKind(id, name);
+    return LibraryItemCategory(id, name);
 }
 
 bool SQLiteLibraryDatabase::saveItem(const LibraryItem& libraryItem) {
     if (!checkItem(libraryItem))
         throw ManagerException(ManagerExceptionKind::InvalidItem);
 
-    if (!checkItemKind(libraryItem.getItemKind()))
-        throw ManagerException(ManagerExceptionKind::InvalidItemKind);
+    if (!checkItemCategory(libraryItem.getItemCategory()))
+        throw ManagerException(ManagerExceptionKind::InvalidItemCategory);
 
     if (libraryItem.getId() <= 0) {
         SQLite::Statement addQuery(database, "INSERT INTO library_items (name, author, description, kind) VALUES (?, ?, ?, ?)");
         addQuery.bind(1, libraryItem.getName());
         addQuery.bind(2, libraryItem.getAuthor());
         addQuery.bind(3, libraryItem.getDescription());
-        addQuery.bind(4, libraryItem.getItemKind().getId());
+        addQuery.bind(4, libraryItem.getItemCategory().getId());
         addQuery.exec();
     } else {
         SQLite::Statement existsQuery(database, "SELECT * FROM library_items WHERE id = ?");
@@ -96,7 +96,7 @@ bool SQLiteLibraryDatabase::saveItem(const LibraryItem& libraryItem) {
             updateQuery.bind(1, libraryItem.getName());
             updateQuery.bind(2, libraryItem.getAuthor());
             updateQuery.bind(3, libraryItem.getDescription());
-            updateQuery.bind(4, libraryItem.getItemKind().getId());
+            updateQuery.bind(4, libraryItem.getItemCategory().getId());
             updateQuery.bind(5, libraryItem.getId());
             updateQuery.exec();
         } else {
@@ -107,26 +107,26 @@ bool SQLiteLibraryDatabase::saveItem(const LibraryItem& libraryItem) {
     return true;
 }
 
-bool SQLiteLibraryDatabase::saveItemKind(const ItemKind& itemKind) {
-    if (!checkItemKind(itemKind))
+bool SQLiteLibraryDatabase::saveItemCategory(const LibraryItemCategory& libraryItemCategory) {
+    if (!checkItemCategory(libraryItemCategory))
         return false;
 
-    if (itemKind.getId() <= 0) {
-        SQLite::Statement query(database, "INSERT INTO item_kinds (name) VALUES (?)");
-        query.bind(1, itemKind.getName());
+    if (libraryItemCategory.getId() <= 0) {
+        SQLite::Statement query(database, "INSERT INTO " ITEM_CATEGORIES_TABLE_NAME " (name) VALUES (?)");
+        query.bind(1, libraryItemCategory.getName());
         query.exec();
     } else {
-        SQLite::Statement query(database, "SELECT * FROM item_kinds WHERE id = ?");
-        query.bind(1, itemKind.getId());
+        SQLite::Statement query(database, "SELECT * FROM " ITEM_CATEGORIES_TABLE_NAME " WHERE id = ?");
+        query.bind(1, libraryItemCategory.getId());
 
         if (query.executeStep() && query.getColumn(0).getInt() > 0) {
             // Update an existing kind
-            SQLite::Statement updateKindQuery(database, "UPDATE item_kinds SET name = ? WHERE id = ?");
-            updateKindQuery.bind(1, itemKind.getName());
-            updateKindQuery.bind(2, itemKind.getId());
-            updateKindQuery.exec();
+            SQLite::Statement updateCategoryQuery(database, "UPDATE " ITEM_CATEGORIES_TABLE_NAME " SET name = ? WHERE id = ?");
+            updateCategoryQuery.bind(1, libraryItemCategory.getName());
+            updateCategoryQuery.bind(2, libraryItemCategory.getId());
+            updateCategoryQuery.exec();
         } else {
-            throw ManagerException(ManagerExceptionKind::DBEntryNotFound, std::string("- Library item kind ID: ").append(std::to_string(itemKind.getId())));
+            throw ManagerException(ManagerExceptionKind::DBEntryNotFound, std::string("- Library item kind ID: ").append(std::to_string(libraryItemCategory.getId())));
         }
     }
 
@@ -137,20 +137,20 @@ bool SQLiteLibraryDatabase::removeItem(const LibraryItem& item) {
     return removeTableRowById(item.getId(), LIBRARY_ITEMS_TABLE_NAME);
 }
 
-bool SQLiteLibraryDatabase::removeItemKind(const ItemKind& itemKind) {
-    return removeTableRowById(itemKind.getId(), ITEMSKIND_TABLE_NAME);
+bool SQLiteLibraryDatabase::removeItemCategory(const LibraryItemCategory& libraryItemCategory) {
+    return removeTableRowById(libraryItemCategory.getId(), ITEM_CATEGORIES_TABLE_NAME);
 }
 
-bool SQLiteLibraryDatabase::checkItemKind(const ItemKind& itemKind) {
-    if (!itemKind.isInitialized())
+bool SQLiteLibraryDatabase::checkItemCategory(const LibraryItemCategory& libraryItemCategory) {
+    if (!libraryItemCategory.isInitialized())
         return false;
 
-    if (itemKind.getId() == 0)
-        if (checkItemKindAlreadyExists(itemKind))
+    if (libraryItemCategory.getId() == 0)
+        if (checkItemCategoryAlreadyExists(libraryItemCategory))
             throw ManagerException(ManagerExceptionKind::DBCategoryAlreadyExists);
 
-    if (itemKind.getId() > 0)
-        if (!checkIdExists(itemKind.getId(), ITEMSKIND_TABLE_NAME))
+    if (libraryItemCategory.getId() > 0)
+        if (!checkIdExists(libraryItemCategory.getId(), ITEM_CATEGORIES_TABLE_NAME))
             throw ManagerException(ManagerExceptionKind::DBCategoryNotFound);
 
     return true;
@@ -193,19 +193,19 @@ SQLite::Statement SQLiteLibraryDatabase::fetchTableRowByName(const std::string& 
 bool SQLiteLibraryDatabase::checkItemAlreadyExists(const LibraryItem& libraryItem) {
     SQLite::Statement query(database, "SELECT * FROM " LIBRARY_ITEMS_TABLE_NAME " WHERE name COLLATE NOCASE = ? AND author COLLATE NOCASE = ? AND kind = ? LIMIT 1;");
 
-    std::cout << "Checking if " << libraryItem.getName() << " by " << libraryItem.getAuthor() << " - Kind (" << libraryItem.getItemKind().getId() << "): " << libraryItem.getItemKind().getName() << std::endl;
+    std::cout << "Checking if " << libraryItem.getName() << " by " << libraryItem.getAuthor() << " - Category (" << libraryItem.getItemCategory().getId() << "): " << libraryItem.getItemCategory().getName() << std::endl;
 
     query.bind(1, libraryItem.getName());
     query.bind(2, libraryItem.getAuthor());
-    query.bind(3, libraryItem.getItemKind().getId());
+    query.bind(3, libraryItem.getItemCategory().getId());
 
     return query.executeStep();
 }
 
-bool SQLiteLibraryDatabase::checkItemKindAlreadyExists(const ItemKind& itemKind) {
-    SQLite::Statement query(database, "SELECT * FROM " ITEMSKIND_TABLE_NAME " WHERE name = ? COLLATE NOCASE LIMIT 1;");
+bool SQLiteLibraryDatabase::checkItemCategoryAlreadyExists(const LibraryItemCategory& libraryItemCategory) {
+    SQLite::Statement query(database, "SELECT * FROM " ITEM_CATEGORIES_TABLE_NAME " WHERE name = ? COLLATE NOCASE LIMIT 1;");
 
-    query.bind(1, itemKind.getName());
+    query.bind(1, libraryItemCategory.getName());
 
     return query.executeStep();
 }

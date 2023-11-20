@@ -4,7 +4,7 @@
 #include "helpers.h"
 
 #include "LibraryItem.h"
-#include "LibraryItemKind.h"
+#include "LibraryItemCategory.h"
 
 #include "database/LibraryDatabase.h"
 #include "ui/LibraryUI.h"
@@ -32,14 +32,14 @@ class LibraryManager {
 private:
     CLI::App app;
     LibraryItem libraryItem;
-    ItemKind itemKind;
+    LibraryItemCategory libraryItemCategory;
 
     OperationKind operationKind = OperationKind::None;
 
     std::unique_ptr<LibraryDatabase> libraryDatabase;
     std::unique_ptr<LibraryUI> libraryUI;
 
-    bool kindMode = false;
+    bool categoryMode = false;
 
     bool arguments_parsed = false;
     bool initialized = false;
@@ -57,31 +57,31 @@ private:
     
     void handleAppPreparse(CLI::App* cmd);
     void handleItemModePreparse(CLI::App* currentMode);
-    void handleItemKindModePreparse(CLI::App* currentMode);
+    void handleItemCategoryModePreparse(CLI::App* currentMode);
 
     void handleAddItemPreparse(CLI::App* cmd);
     void handleUpdateItemPreparse(CLI::App* cmd);
     void handleRemoveItemPreparse(CLI::App* cmd);
 
     void handleItemCommand(CLI::App* cmd);
-    void handleItemKindCommand(CLI::App* cmd);
+    void handleItemCategoryCommand(CLI::App* cmd);
 
     void handleItemSearchCommand(CLI::App* cmd);
-    void handleItemKindSearchCommand(CLI::App* cmd);
+    void handleItemCategorySearchCommand(CLI::App* cmd);
 
     void handleRemoveItemCommand(CLI::App* cmd);
-    void handleRemoveItemKindCommand(CLI::App* cmd);
+    void handleRemoveItemCategoryCommand(CLI::App* cmd);
     
     LibraryItem gatherMissingItemInfoInteractive(
         long long id,
         std::string& name,
         std::string& author,
         std::string& description,
-        std::string& kindIdOrrString,
+        std::string& categoryIdOrString,
         bool update
     );
 
-    ItemKind gatherMissingItemKindInfoInteractive(
+    LibraryItemCategory gatherMissingItemCategoryInfoInteractive(
         long long id,
         std::string& name,
         bool update
@@ -94,6 +94,9 @@ private:
     void applyDatabaseAdd();
     void applyDatabaseUpdate();
     void applyDatabaseRemove();
+
+    void databaseSearch();
+
     void applyDatabaseChanges();
 
     bool promptItemDeletion();

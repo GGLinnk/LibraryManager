@@ -17,16 +17,16 @@ public:
     const std::filesystem::path getLibraryDatabasePath(const std::filesystem::path& appDataFolder, const std::string& dbFileName);
 
     LibraryItem fetchFullItem(const LibraryItem& libraryItem) override;
-    ItemKind fetchFullItemKind(const ItemKind& itemKind) override;
+    LibraryItemCategory fetchFullItemCategory(const LibraryItemCategory& libraryItemCategory) override;
 
     bool checkItem(const LibraryItem& libraryItem) override;
-    bool checkItemKind(const ItemKind& itemKind) override;
+    bool checkItemCategory(const LibraryItemCategory& libraryItemCategory) override;
 
     bool saveItem(const LibraryItem& libraryItem) override;
-    bool saveItemKind(const ItemKind& itemKind) override;
+    bool saveItemCategory(const LibraryItemCategory& libraryItemCategory) override;
 
     bool removeItem(const LibraryItem& libraryItem) override;
-    bool removeItemKind(const ItemKind& itemKind) override;
+    bool removeItemCategory(const LibraryItemCategory& libraryItemCategory) override;
 
 private:
     //std::unique_ptr<SQLite::Database> database;
@@ -36,7 +36,7 @@ private:
     SQLite::Statement fetchTableRowByName(const std::string& name, const std::string& tableName); 
 
     bool checkItemAlreadyExists(const LibraryItem& item);
-    bool checkItemKindAlreadyExists(const ItemKind& itemKind);
+    bool checkItemCategoryAlreadyExists(const LibraryItemCategory& libraryItemCategory);
     bool checkIdExists(const long long id, const std::string& tableName);
 
     bool removeTableRowById(const long long id, const std::string& tableName);

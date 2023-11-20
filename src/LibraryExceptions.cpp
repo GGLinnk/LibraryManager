@@ -54,14 +54,14 @@ std::string ManagerException::getMessage(ManagerExceptionKind reason) {
         return std::string("Invalid Item!");
     case ManagerExceptionKind::InvalidItemID:
         return std::string("Invalid ID!");
-    case ManagerExceptionKind::InvalidItemKind:
-        return std::string("Invalid Item Kind!");
+    case ManagerExceptionKind::InvalidItemCategory:
+        return std::string("Invalid item category!");
     case ManagerExceptionKind::InvalidUpdateID:
         return std::string("Invalid Update ID!");
     case ManagerExceptionKind::ItemNotInitialized:
         return std::string("Library Item is not initialized!");
-    case ManagerExceptionKind::LibraryItemKindNotFound:
-        return std::string("Library item kind not found!");
+    case ManagerExceptionKind::LibraryItemCategoryNotFound:
+        return std::string("Library item category not found!");
     case ManagerExceptionKind::LibraryItemNotFound:
         return std::string("Library item not found!");
     case ManagerExceptionKind::NoArgs:

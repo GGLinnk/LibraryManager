@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LibraryItemKind.h"
+#include "LibraryItemCategory.h"
 
 #include <string>
 
@@ -10,7 +10,7 @@ private:
     std::string name;
     std::string author;
     std::string description;
-    ItemKind itemKind;
+    LibraryItemCategory libraryItemCategory;
 
     bool empty = true;
     bool initialized = false;
@@ -18,8 +18,8 @@ private:
 public:
     LibraryItem();
     LibraryItem(long long id);
-    LibraryItem(const std::string& name, const std::string& author, const std::string& description, const ItemKind itemKind);
-    LibraryItem(long long id, const std::string& name, const std::string& author, const std::string& description, const ItemKind itemKind);
+    LibraryItem(const std::string& name, const std::string& author, const std::string& description, const LibraryItemCategory libraryItemCategory);
+    LibraryItem(long long id, const std::string& name, const std::string& author, const std::string& description, const LibraryItemCategory libraryItemCategory);
 
     void setInitialized();
     bool isInitialized() const;
@@ -30,5 +30,5 @@ public:
     const std::string& getName() const;
     const std::string& getAuthor() const;
     const std::string& getDescription() const;
-    ItemKind getItemKind() const;
+    LibraryItemCategory getItemCategory() const;
 };
