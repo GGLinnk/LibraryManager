@@ -8,7 +8,7 @@ ItemKind::ItemKind(const std::string& name) {
     } catch (...) { // FIXME !
         this->name = name;
     }
-    empty = false;
+    empty = (id <= 0 && name.empty()) ? true : false;
 }
 
 ItemKind::ItemKind(long long id)
