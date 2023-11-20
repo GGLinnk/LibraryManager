@@ -89,7 +89,8 @@ private:
     );
 
     int parse(int argc, char *argv[]);
-    void fullInit();
+
+    void finishInit();
 
     void applyDatabaseAdd();
     void applyDatabaseRemove();

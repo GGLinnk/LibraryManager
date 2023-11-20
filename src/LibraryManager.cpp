@@ -13,7 +13,7 @@ LibraryManager::LibraryManager(int argc, char *argv[]) :
         if (parse(argc, argv))
             throw ManagerException(ManagerExceptionKind::CLIParseError);
 
-        fullInit();
+        finishInit();
         applyDatabaseChanges();
     } catch (const CLI::ParseError& e) {
         throw ManagerException(ManagerExceptionKind::CLIParseError, e.what());
@@ -266,7 +266,7 @@ int LibraryManager::parse(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
-void LibraryManager::fullInit() {
+void LibraryManager::finishInit() {
     if (!arguments_parsed)
         return; //throw ManagerException(ManagerExceptionKind::NoArgs);
 
