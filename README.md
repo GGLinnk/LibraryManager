@@ -6,10 +6,6 @@ This is a library item manager.
 
 ## Compile
 
-** WARNING ** Build scripts DO NOT GUARANTEE a good CMake state.
-
-Their purpose is for faster quick builds. They are not safe.
-
 
 ### Requirements
 
