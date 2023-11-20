@@ -264,14 +264,14 @@ void LibraryManager::finishInit() {
 void LibraryManager::applyDatabaseAdd() {
     if (categoryMode) {
         if (libraryDatabase->saveItemCategory(libraryItemCategory))
-            std::cout << "Category sucessfully added to the database!";
+            std::cout << "Category sucessfully added to the database!" << std::endl;
         else
             throw ManagerException(ManagerExceptionKind::InvalidItemCategory);
     } else {
         libraryItem = libraryDatabase->fetchFullItem(libraryItem);
 
         if (libraryDatabase->saveItem(libraryItem))
-            std::cout << "Item sucessfully added to the database!";
+            std::cout << "Item sucessfully added to the database!" << std::endl;
         else
             throw ManagerException(ManagerExceptionKind::InvalidItem);
     }
@@ -280,14 +280,14 @@ void LibraryManager::applyDatabaseAdd() {
 void LibraryManager::applyDatabaseUpdate() {
     if (categoryMode) {
         if (libraryDatabase->saveItemCategory(libraryItemCategory))
-            std::cout << "Category sucessfully updated!";
+            std::cout << "Category sucessfully updated!" << std::endl;
         else
             throw ManagerException(ManagerExceptionKind::InvalidItemCategory);
     } else {
         libraryItem = libraryDatabase->fetchFullItem(libraryItem);
 
         if (libraryDatabase->saveItem(libraryItem))
-            std::cout << "Item sucessfully updated!";
+            std::cout << "Item sucessfully updated!" << std::endl;
         else
             throw ManagerException(ManagerExceptionKind::InvalidItem);
     }
