@@ -166,8 +166,7 @@ bool SQLiteLibraryDatabase::checkItem(const LibraryItem& libraryItem) {
         if (checkItemAlreadyExists(libraryItem))
             throw ManagerException(ManagerExceptionKind::DBItemAlreadyExists);
 
-        if (!checkItemAlreadyExists(libraryItem))
-            return true;
+    std::cout << "STOP HERE !" << std::endl;
 
     // If this is updated item, check if id exists in table.
     if (libraryItem.getId() > 0)
@@ -194,7 +193,7 @@ SQLite::Statement SQLiteLibraryDatabase::fetchTableRowByName(const std::string& 
 }
 
 bool SQLiteLibraryDatabase::checkItemAlreadyExists(const LibraryItem& libraryItem) {
-    SQLite::Statement query(database, "SELECT * FROM " LIBRARY_ITEMS_TABLE_NAME " WHERE name COLLATE NOCASE = ? AND author = ? AND id COLLATE NOCASE = ? LIMIT 1;");
+    SQLite::Statement query(database, "SELECT * FROM " LIBRARY_ITEMS_TABLE_NAME " WHERE name COLLATE NOCASE = ? AND author COLLATE NOCASE = ? AND kind = ? LIMIT 1;");
 
     std::cout << "Checking if " << libraryItem.getName() << " by " << libraryItem.getAuthor() << " - Kind (" << libraryItem.getItemKind().getId() << "): " << libraryItem.getItemKind().getName() << std::endl;
 
