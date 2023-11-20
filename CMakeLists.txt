@@ -14,9 +14,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(cmake/CPM.cmake)
 
-message("Adding FTXUI 5.0.0")
-set(FTXUI_QUIET on)
-CPMAddPackage("gh:ArthurSonzogni/ftxui#v5.0.0")
+#message("Adding FTXUI 5.0.0")
+#set(FTXUI_QUIET on)
+#CPMAddPackage("gh:ArthurSonzogni/ftxui#v5.0.0")
 #add_subdirectory(${CMAKE_SOURCE_DIR}/lib/FTXUI-5.0.0)
 
 message("Adding SQLiteCpp 3.3.1")
@@ -42,9 +42,9 @@ file(GLOB
 add_executable(LibraryManager ${SOURCES})
 link_directories(${${sqlite3_SOURCE_DIR}})
 target_link_libraries(LibraryManager
-  PRIVATE ftxui::screen
-  PRIVATE ftxui::dom
-  PRIVATE ftxui::component
+  #PRIVATE ftxui::screen
+  #PRIVATE ftxui::dom
+  #PRIVATE ftxui::component
   PRIVATE CLI11::CLI11
   PRIVATE SQLiteCpp
 )
