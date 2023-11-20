@@ -9,7 +9,7 @@ SQLiteLibraryDatabase::SQLiteLibraryDatabase(
 {
     try {
         database.exec("CREATE TABLE IF NOT EXISTS " LIBRARY_ITEMS_TABLE_NAME " (id INTEGER PRIMARY KEY, name TEXT, author TEXT, description TEXT, kind INTEGER)");
-        database.exec("CREATE TABLE IF NOT EXISTS " ITEMSKIND_TABLE_NAME " (id INTEGER PRIMARY KEY, name TEXT)");
+        database.exec("CREATE TABLE IF NOT EXISTS " ITEMSKIND_TABLE_NAME " (id INTEGER PRIMARY KEY, name TEXT, removed INTEGER)"); // removed for soft/hard delete logic to come.
     } catch(SQLite::Exception& e) {
         throw ManagerException(ManagerExceptionKind::DBInitFail, e.what());
     }
