@@ -67,16 +67,18 @@ void LibraryManager::configureCallbacks() {
 }
 
 void LibraryManager::handleItemModePreparse(CLI::App* currentMode) {
+    this->kindMode = false;
+
     CLI::App* addCommand = currentMode->add_subcommand("add", "Add a library item");
-    addCommand->preparse_callback([this, addCommand](size_t count) { handleAddItemPreparse(addCommand); });
+    addCommand->preparse_callback([this, addCommand](size_t _) { handleAddItemPreparse(addCommand); });
     addCommand->callback([this, addCommand]() { handleItemCommand(addCommand); });
 
     CLI::App* updateCommand = currentMode->add_subcommand("update", "Update a library item");
-    updateCommand->preparse_callback([this, updateCommand](size_t count) { handleUpdateItemPreparse(updateCommand); });
+    updateCommand->preparse_callback([this, updateCommand](size_t _) { handleUpdateItemPreparse(updateCommand); });
     updateCommand->callback([this, updateCommand]() { handleItemCommand(updateCommand); });
 
     CLI::App* removeCommand = currentMode->add_subcommand("remove", "Remove a library item");
-    removeCommand->preparse_callback([this, removeCommand](size_t count) { handleRemoveItemPreparse(removeCommand); });
+    removeCommand->preparse_callback([this, removeCommand](size_t _) { handleRemoveItemPreparse(removeCommand); });
     removeCommand->callback([this, removeCommand]() { handleRemoveItemCommand(removeCommand); });
 
     /* CLI::App* searchCommand = currentMode->add_subcommand("search", "Search for library items"); */
@@ -113,7 +115,7 @@ void LibraryManager::handleAddItemPreparse(CLI::App* cmd) {
 }
 
 void LibraryManager::handleUpdateItemPreparse(CLI::App* cmd) {
-    cmd->add_option("-i,--id", "ID of the item you want to update.");
+    cmd->add_option("--id", "ID of the item you want to update.");
     cmd->add_option("-n,--name", "Name of the item you want to update.");
 
     if (kindMode) return;
@@ -124,7 +126,7 @@ void LibraryManager::handleUpdateItemPreparse(CLI::App* cmd) {
 }
 
 void LibraryManager::handleRemoveItemPreparse(CLI::App* cmd) {
-    cmd->add_option("-i,--id", "ID of the item you want to remove.");
+    cmd->add_option("--id", "ID of the item you want to remove.");
 }
 
 void LibraryManager::handleItemCommand(CLI::App* cmd) {
@@ -214,13 +216,13 @@ LibraryItem LibraryManager::gatherMissingItemInfoInteractive(
     if (update && !promptIdForUpdate(id))
         throw ManagerException(ManagerExceptionKind::InvalidUpdateID);
 
-    if (!getMissingInfo(id, name, "name"))
+    if (!promptUserString(name, "name", update ? 0 : 3) && !update)
         throw ManagerException(ManagerExceptionKind::EmptyAddItem);
-    if (!getMissingInfo(id, author, "author"))
+    if (!promptUserString(author, "author", update ? 0 : 3) && !update)
         throw ManagerException(ManagerExceptionKind::EmptyAddItem);
-    if (!getMissingInfo(id, description, "description"))
+    if (!promptUserString(description, "description", update ? 0 : 3) && !update)
         throw ManagerException(ManagerExceptionKind::EmptyAddItem);
-    if (!getMissingInfo(id, kindIdOrString, "kind"))
+    if (!promptUserString(kindIdOrString, "kind", update ? 0 : 3) && !update)
         throw ManagerException(ManagerExceptionKind::EmptyAddItem);
 
     if (update && name.empty() && author.empty() && description.empty() && kindIdOrString.empty())
@@ -237,7 +239,7 @@ ItemKind LibraryManager::gatherMissingItemKindInfoInteractive(
     if (update && !promptIdForUpdate(id))
         throw ManagerException(ManagerExceptionKind::InvalidUpdateID);
 
-    if (!getMissingInfo(id, name, "name"))
+    if (!promptUserString(name, "name") && !update)
         throw ManagerException(ManagerExceptionKind::EmptyAddItem);
 
     if (update && name.empty())
