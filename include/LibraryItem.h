@@ -6,7 +6,7 @@
 
 class LibraryItem  {
 private:
-    long int id;
+    long long id;
     std::string name;
     std::string author;
     std::string description;
@@ -17,16 +17,16 @@ private:
 
 public:
     LibraryItem();
-    LibraryItem(long int id);
+    LibraryItem(long long id);
     LibraryItem(const std::string& name, const std::string& author, const std::string& description, const ItemKind itemKind);
-    LibraryItem(long int id, const std::string& name, const std::string& author, const std::string& description, const ItemKind itemKind);
+    LibraryItem(long long id, const std::string& name, const std::string& author, const std::string& description, const ItemKind itemKind);
 
     void setInitialized();
     bool isInitialized() const;
     bool isEmpty() const;
 
     // Getters
-    long int getId() const;
+    long long getId() const;
     const std::string& getName() const;
     const std::string& getAuthor() const;
     const std::string& getDescription() const;

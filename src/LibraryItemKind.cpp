@@ -10,10 +10,10 @@ ItemKind::ItemKind(const std::string& name) {
     }
 }
 
-ItemKind::ItemKind(long int id)
+ItemKind::ItemKind(long long id)
 : ItemKind(id, std::string("")) { }
 
-ItemKind::ItemKind(long int id, const std::string& name)
+ItemKind::ItemKind(long long id, const std::string& name)
 : id(id), name(name) {
     empty = (id <= 0 && name.empty()) ? true : false;
     initialized = (id >= 0 && !name.empty()) ? true : false;
@@ -23,7 +23,7 @@ bool ItemKind::isInitialized() const {
     return initialized;
 }
 
-long int ItemKind::getId() const {
+long long ItemKind::getId() const {
     return id;
 }
 

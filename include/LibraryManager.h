@@ -72,9 +72,9 @@ private:
     void handleRemoveItemCommand(CLI::App* cmd);
     void handleRemoveItemKindCommand(CLI::App* cmd);
     
-    bool promptIdForUpdate(long int& id);
+    bool promptIdForUpdate(long long& id);
     LibraryItem gatherMissingItemInfoInteractive(
-        long int id,
+        long long id,
         std::string& name,
         std::string& author,
         std::string& description,
@@ -83,7 +83,7 @@ private:
     );
 
     ItemKind gatherMissingItemKindInfoInteractive(
-        long int id,
+        long long id,
         std::string& name,
         bool update
     );

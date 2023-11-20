@@ -137,7 +137,7 @@ void LibraryManager::handleItemCommand(CLI::App* cmd) {
         operationKind = OperationKind::Add;
     }
 
-    long int id = idOption ? idOption->as<long int>() : 0;
+    long long id = idOption ? idOption->as<long long>() : 0;
     std::string name = cmd->get_option("--name")->as<std::string>();
     std::string author = cmd->get_option("--author")->as<std::string>();
     std::string description = cmd->get_option("--description")->as<std::string>();
@@ -156,14 +156,14 @@ void LibraryManager::handleItemKindCommand(CLI::App* cmd) {
         operationKind = OperationKind::Add;
     }
 
-    long int id = idOption ? idOption->as<long int>() : 0;
+    long long id = idOption ? idOption->as<long long>() : 0;
     std::string name = cmd->get_option("--name")->as<std::string>();
 
     itemKind = LibraryManager::gatherMissingItemKindInfoInteractive(id, name, operationKind == OperationKind::Update);
 }
 
 void LibraryManager::handleRemoveItemCommand(CLI::App* cmd) {
-    long int id = cmd->get_option("--id")->as<long int>();
+    long long id = cmd->get_option("--id")->as<long long>();
 
     operationKind = OperationKind::Remove;
 
@@ -174,7 +174,7 @@ void LibraryManager::handleRemoveItemCommand(CLI::App* cmd) {
 }
 
 void LibraryManager::handleRemoveItemKindCommand(CLI::App* cmd) {
-    long int id = cmd->get_option("--id")->as<long int>();
+    long long id = cmd->get_option("--id")->as<long long>();
 
     operationKind = OperationKind::Remove;
 
@@ -184,7 +184,7 @@ void LibraryManager::handleRemoveItemKindCommand(CLI::App* cmd) {
         throw ManagerException(ManagerExceptionKind::InvalidUpdateID, "- Can't edit ID less or equal than 0!");
 }
 
-bool LibraryManager::promptIdForUpdate(long int& id) {
+bool LibraryManager::promptIdForUpdate(long long& id) {
     std::string itemVar;
 
     for (short tries = 0; id <= 0 && tries <= 3; tries++) {
@@ -204,7 +204,7 @@ bool LibraryManager::promptIdForUpdate(long int& id) {
 }
 
 LibraryItem LibraryManager::gatherMissingItemInfoInteractive(
-    long int id,
+    long long id,
     std::string& name,
     std::string& author,
     std::string& description,
@@ -230,7 +230,7 @@ LibraryItem LibraryManager::gatherMissingItemInfoInteractive(
 }
 
 ItemKind LibraryManager::gatherMissingItemKindInfoInteractive(
-    long int id,
+    long long id,
     std::string& name,
     bool update
 ) {

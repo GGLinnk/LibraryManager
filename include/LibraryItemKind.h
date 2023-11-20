@@ -4,7 +4,7 @@
 
 class ItemKind {
 private:
-    long int id;
+    long long id;
     std::string name;
 
     bool initialized = false;
@@ -12,14 +12,14 @@ private:
 
 public:
     ItemKind();
-    ItemKind(long int id);
+    ItemKind(long long id);
     ItemKind(const std::string& name);
-    ItemKind(long int id, const std::string& name);
+    ItemKind(long long id, const std::string& name);
 
     bool setInitialized();
     bool isInitialized() const;
     bool isEmpty() const;
 
-    long int getId() const;
+    long long getId() const;
     const std::string& getName() const;
 };

@@ -61,7 +61,7 @@ ItemKind SQLiteLibraryDatabase::fetchFullItemKind(const ItemKind& itemKind) {
     if (!itemKindQuery.executeStep())
         throw ManagerException(ManagerExceptionKind::LibraryItemKindNotFound);
 
-    long int id = itemKindQuery.getColumn("id").getInt64();
+    long long id = itemKindQuery.getColumn("id").getInt64();
     std::string name = itemKindQuery.getColumn("name").getText();
 
     return ItemKind(id, name);
@@ -171,7 +171,7 @@ bool SQLiteLibraryDatabase::checkItem(const LibraryItem& libraryItem) {
     return false;
 }
 
-SQLite::Statement SQLiteLibraryDatabase::fetchTableRowById(const long int id, const std::string& tableName) {
+SQLite::Statement SQLiteLibraryDatabase::fetchTableRowById(const long long id, const std::string& tableName) {
     SQLite::Statement fetchQuery(database, "SELECT * FROM " + tableName + " WHERE id = ? LIMIT 1;");
 
     fetchQuery.bind(1, id);
@@ -204,7 +204,7 @@ bool SQLiteLibraryDatabase::checkItemKindAlreadyExists(const ItemKind& itemKind)
     return query.executeStep();
 }
 
-bool SQLiteLibraryDatabase::checkIdExists(const long int id, const std::string& tableName) {
+bool SQLiteLibraryDatabase::checkIdExists(const long long id, const std::string& tableName) {
     SQLite::Statement query(database, "SELECT * FROM " + tableName + " WHERE id = ? LIMIT 1;");
 
     query.bind(1, id);
@@ -212,7 +212,7 @@ bool SQLiteLibraryDatabase::checkIdExists(const long int id, const std::string& 
     return query.executeStep();
 }
 
-bool SQLiteLibraryDatabase::removeTableRowById(const long int itemId, const std::string& tableName) {
+bool SQLiteLibraryDatabase::removeTableRowById(const long long itemId, const std::string& tableName) {
     SQLite::Statement query(database, "DELETE FROM " + tableName + " WHERE id = ?");
     
     query.bind(1, itemId);

@@ -8,7 +8,7 @@ void FTXUILibraryUI::displayMenu() {
     
 }
 
-LibraryItem FTXUILibraryUI::gatherMissingInfoInteractiveUI(long int id, std::string name, std::string author, std::string description, std::string kindIdOrString) {
+LibraryItem FTXUILibraryUI::gatherMissingInfoInteractiveUI(long long id, std::string name, std::string author, std::string description, std::string kindIdOrString) {
     ItemKind itemKind;
 /*     input_name = ftxui::Input(name, "Enter item name: ");
     input_author = ftxui::Input(author, "Enter author: ");

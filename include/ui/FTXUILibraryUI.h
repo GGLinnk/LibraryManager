@@ -12,5 +12,5 @@ public:
 
     void displayMenu() override;
 
-    LibraryItem gatherMissingInfoInteractiveUI(long int id, std::string name, std::string author, std::string description, std::string kindIsOrString);
+    LibraryItem gatherMissingInfoInteractiveUI(long long id, std::string name, std::string author, std::string description, std::string kindIsOrString);
 };

@@ -44,7 +44,7 @@ bool getYesNoInputWithDefault(bool defaultValue, int maxTries, bool hasDefault) 
     throw std::runtime_error("Exceeded maximum number of attempts. Aborting.");
 }
 
-bool getMissingInfo(long int id, std::string& itemVar, char* itemVarName) {
+bool getMissingInfo(long long id, std::string& itemVar, char* itemVarName) {
     for (short tries = 0; itemVar.empty() && tries <= 3; tries++) {
         if (tries > 0)
             std::cout << "Please enter a valid " << itemVarName << "! (" << tries << "/3)" << std::endl;
