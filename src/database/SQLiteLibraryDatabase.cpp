@@ -84,11 +84,11 @@ bool SQLiteLibraryDatabase::saveItem(const LibraryItem& libraryItem) {
         addQuery.bind(1, libraryItem.getName());
         addQuery.bind(2, libraryItem.getAuthor());
         addQuery.bind(3, libraryItem.getDescription());
-        addQuery.bind(4, libraryItem.getItemCategory().getId());
+        addQuery.bind(4, (int64_t)libraryItem.getItemCategory().getId());
         addQuery.exec();
     } else {
         SQLite::Statement existsQuery(database, "SELECT * FROM library_items WHERE id = ?");
-        existsQuery.bind(1, libraryItem.getId());
+        existsQuery.bind(1, (int64_t)libraryItem.getId());
 
         if (existsQuery.executeStep() && existsQuery.getColumn(0).getInt() > 0) {
             // Update an existing item
@@ -96,8 +96,8 @@ bool SQLiteLibraryDatabase::saveItem(const LibraryItem& libraryItem) {
             updateQuery.bind(1, libraryItem.getName());
             updateQuery.bind(2, libraryItem.getAuthor());
             updateQuery.bind(3, libraryItem.getDescription());
-            updateQuery.bind(4, libraryItem.getItemCategory().getId());
-            updateQuery.bind(5, libraryItem.getId());
+            updateQuery.bind(4, (int64_t)libraryItem.getItemCategory().getId());
+            updateQuery.bind(5, (int64_t)libraryItem.getId());
             updateQuery.exec();
         } else {
             throw ManagerException(ManagerExceptionKind::DBEntryNotFound, std::string("- Library item ID: ").append(std::to_string(libraryItem.getId())));
@@ -117,13 +117,13 @@ bool SQLiteLibraryDatabase::saveItemCategory(const LibraryItemCategory& libraryI
         query.exec();
     } else {
         SQLite::Statement query(database, "SELECT * FROM " ITEM_CATEGORIES_TABLE_NAME " WHERE id = ?");
-        query.bind(1, libraryItemCategory.getId());
+        query.bind(1, (int64_t)libraryItemCategory.getId());
 
         if (query.executeStep() && query.getColumn(0).getInt() > 0) {
             // Update an existing kind
             SQLite::Statement updateCategoryQuery(database, "UPDATE " ITEM_CATEGORIES_TABLE_NAME " SET name = ? WHERE id = ?");
             updateCategoryQuery.bind(1, libraryItemCategory.getName());
-            updateCategoryQuery.bind(2, libraryItemCategory.getId());
+            updateCategoryQuery.bind(2, (int64_t)libraryItemCategory.getId());
             updateCategoryQuery.exec();
         } else {
             throw ManagerException(ManagerExceptionKind::DBEntryNotFound, std::string("- Library item category ID: ").append(std::to_string(libraryItemCategory.getId())));
@@ -177,7 +177,7 @@ bool SQLiteLibraryDatabase::checkItem(const LibraryItem& libraryItem) {
 SQLite::Statement SQLiteLibraryDatabase::fetchTableRowById(const long long id, const std::string& tableName) {
     SQLite::Statement fetchQuery(database, "SELECT * FROM " + tableName + " WHERE id = ? LIMIT 1;");
 
-    fetchQuery.bind(1, id);
+    fetchQuery.bind(1, (int64_t)id);
 
     return fetchQuery;
 }
@@ -197,7 +197,7 @@ bool SQLiteLibraryDatabase::checkItemAlreadyExists(const LibraryItem& libraryIte
 
     query.bind(1, libraryItem.getName());
     query.bind(2, libraryItem.getAuthor());
-    query.bind(3, libraryItem.getItemCategory().getId());
+    query.bind(3, (int64_t)libraryItem.getItemCategory().getId());
 
     return query.executeStep();
 }
@@ -213,7 +213,7 @@ bool SQLiteLibraryDatabase::checkItemCategoryAlreadyExists(const LibraryItemCate
 bool SQLiteLibraryDatabase::checkIdExists(const long long id, const std::string& tableName) {
     SQLite::Statement query(database, "SELECT * FROM " + tableName + " WHERE id = ? LIMIT 1;");
 
-    query.bind(1, id);
+    query.bind(1, (int64_t)id);
 
     return query.executeStep();
 }
@@ -221,7 +221,7 @@ bool SQLiteLibraryDatabase::checkIdExists(const long long id, const std::string&
 bool SQLiteLibraryDatabase::removeTableRowById(const long long itemId, const std::string& tableName) {
     SQLite::Statement query(database, "DELETE FROM " + tableName + " WHERE id = ?");
     
-    query.bind(1, itemId);
+    query.bind(1, (int64_t)itemId);
 
     return query.exec() > 0;
 }
@@ -234,11 +234,11 @@ std::vector<LibraryItem> SQLiteLibraryDatabase::searchItemsByName(const std::str
 
     while (query.executeStep()) {
         LibraryItem item(
-            query.getColumn("id"),
-            query.getColumn("name"),
-            query.getColumn("author"),
-            query.getColumn("description"),
-            fetchFullItemCategory(query.getColumn("category").getInt())
+            query.getColumn("id").getInt64(),
+            query.getColumn("name").getText(),
+            query.getColumn("author").getText(),
+            query.getColumn("description").getText(),
+            fetchFullItemCategory(query.getColumn("category").getInt64())
         );
 
         result.push_back(item);
@@ -255,11 +255,11 @@ std::vector<LibraryItem> SQLiteLibraryDatabase::searchItemsByAuthor(const std::s
 
     while (query.executeStep()) {
         LibraryItem item(
-            query.getColumn("id"),
-            query.getColumn("name"),
-            query.getColumn("author"),
-            query.getColumn("description"),
-            fetchFullItemCategory(query.getColumn("category").getInt())
+            query.getColumn("id").getInt64(),
+            query.getColumn("name").getText(),
+            query.getColumn("author").getText(),
+            query.getColumn("description").getText(),
+            fetchFullItemCategory(query.getColumn("category").getInt64())
         );
 
         result.push_back(item);
@@ -287,11 +287,11 @@ std::vector<LibraryItem> SQLiteLibraryDatabase::searchItemsByKeywords(const std:
 
     while (query.executeStep()) {
         LibraryItem item(
-            query.getColumn("id"),
-            query.getColumn("name"),
-            query.getColumn("author"),
-            query.getColumn("description"),
-            fetchFullItemCategory(query.getColumn("category").getInt())
+            query.getColumn("id").getInt64(),
+            query.getColumn("name").getText(),
+            query.getColumn("author").getText(),
+            query.getColumn("description").getText(),
+            fetchFullItemCategory(query.getColumn("category").getInt64())
         );
 
         result.push_back(item);
@@ -309,8 +309,8 @@ std::vector<LibraryItemCategory> SQLiteLibraryDatabase::searchCategoriesByName(c
     
     while (query.executeStep()) {
         LibraryItemCategory libraryItemCategory(
-            query.getColumn("id"),
-            query.getColumn("name")
+            query.getColumn("id").getInt64(),
+            query.getColumn("name").getText()
         );
 
         result.push_back(libraryItemCategory);

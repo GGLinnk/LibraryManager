@@ -24,7 +24,8 @@ CPMAddPackage("gh:SRombauts/SQLiteCpp#3.3.1")
 #add_subdirectory(${CMAKE_SOURCE_DIR}/lib/SQLiteCpp-3.3.1)
 
 message("Adding CLI11 2.3.2")
-CPMAddPackage("gh:CLIUtils/CLI11#v2.3.2")
+
+target_compile_features(CLI11 INTERFACE cxx_std_11)
 
 configure_file(
     ${CMAKE_SOURCE_DIR}/config.h.in
