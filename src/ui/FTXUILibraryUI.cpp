@@ -1,5 +1,7 @@
 #include "ui/FTXUILibraryUI.h"
 
+#ifndef FTXUI_DISABLED
+
 FTXUILibraryUI::FTXUILibraryUI() {
 
 }
@@ -19,5 +21,7 @@ LibraryItem FTXUILibraryUI::gatherMissingInfoInteractiveUI(long long id, std::st
         ftxui::Button("Cancel", [&] { /* handle cancel logic }),
     }); */
 
-    return LibraryItem(id, name, author, description, itemKind);
+    return LibraryItem(id, name, author, description, libraryItemCategory);
 }
+
+#endif

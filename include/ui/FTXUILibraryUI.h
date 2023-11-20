@@ -1,8 +1,12 @@
 #pragma once
 
+#include "config.h"
+
+#ifndef FTXUI_DISABLED
+
 #include "LibraryUI.h"
 #include "LibraryItem.h"
-#include "LibraryItemKind.h"
+#include "LibraryItemCategory.h"
 
 #include <ftxui/screen/screen.hpp>
 
@@ -12,5 +16,7 @@ public:
 
     void displayMenu() override;
 
-    LibraryItem gatherMissingInfoInteractiveUI(long long id, std::string name, std::string author, std::string description, std::string kindIsOrString);
+    LibraryItem gatherMissingInfoInteractiveUI(long long id, std::string name, std::string author, std::string description, std::string CategoryIsOrString);
 };
+
+#endif
