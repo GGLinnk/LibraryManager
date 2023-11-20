@@ -8,7 +8,9 @@
 #include "LibraryItem.h"
 
 #include <SQLiteCpp/SQLiteCpp.h>
+
 #include <vector>
+#include <filesystem>
 
 class SQLiteLibraryDatabase : public LibraryDatabase {
 public:
