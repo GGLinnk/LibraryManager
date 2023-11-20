@@ -340,7 +340,7 @@ void LibraryManager::databaseSearch() {
     }
 
     if (operationKind == OperationKind::SearchItem && !searchKeywords.empty()) {
-        auto keywordsResult = searchItemsByName();
+        auto keywordsResult = searchItemsByKeywords();
         itemSearchResult.insert(
             itemSearchResult.end(),
             std::make_move_iterator(keywordsResult.begin()),
