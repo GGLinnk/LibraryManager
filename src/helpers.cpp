@@ -44,18 +44,38 @@ bool getYesNoInputWithDefault(bool defaultValue, int maxTries, bool hasDefault) 
     throw std::runtime_error("Exceeded maximum number of attempts. Aborting.");
 }
 
-bool getMissingInfo(long long id, std::string& itemVar, char* itemVarName) {
-    for (short tries = 0; itemVar.empty() && tries <= 3; tries++) {
+bool promptUserString(std::string& itemVar, char* itemVarName, size_t maxtries) {
+    for (size_t tries = 0; itemVar.empty() && tries <= maxtries; tries++) {
         if (tries > 0)
-            std::cout << "Please enter a valid " << itemVarName << "! (" << tries << "/3)" << std::endl;
+            std::cout << "Please enter a valid " << itemVarName << "! (" << tries << "/" << maxtries << ")" << std::endl;
+
         std::cout << "Enter " << itemVarName << ": ";
         std::getline(std::cin, itemVar);
 
         if (std::cin.fail() || std::cin.eof())
             return false;
-        if (id > 0)
-            return true;
     }
 
     return !itemVar.empty();
+}
+
+bool promptUserLL(long long& promptVar, char* itemVarName, size_t maxtries) {
+    std::string itemVar;
+
+    for (size_t tries = 0; promptVar <= 0 && tries <= maxtries; tries++) { // NOT GENERIC ENOUGH
+        if (tries > 0)
+            std::cout << "Please enter a valid " << itemVarName << "! (" << tries << "/" << maxtries << ")" << std::endl;
+            
+        std::cout << "Enter " << itemVarName << ": ";
+        std::getline(std::cin, itemVar);
+
+        if (std::cin.fail() || std::cin.eof())
+            return false;
+        
+        try {
+            promptVar = std::stoll(itemVar);
+        } catch (std::invalid_argument&) { }
+    }
+
+    return (promptVar > 0);
 }
