@@ -40,7 +40,7 @@ LibraryItem SQLiteLibraryDatabase::fetchFullItem(const LibraryItem& libraryItem)
     SQLite::Statement itemQuery = fetchTableRowById(libraryItem.getId(), LIBRARY_ITEMS_TABLE_NAME);
 
     if (libraryItem.getId() > 0)
-        if (itemQuery.executeStep())
+        if (!itemQuery.executeStep())
             throw ManagerException(ManagerExceptionKind::LibraryItemNotFound);
 
     std::string name = (libraryItem.getName().empty()) ? itemQuery.getColumn("name").getText() : libraryItem.getName();
