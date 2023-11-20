@@ -2,6 +2,7 @@
 
 #include "LibraryItemCategory.h"
 
+#include <iostream>
 #include <string>
 
 class LibraryItem  {
@@ -31,4 +32,7 @@ public:
     const std::string& getAuthor() const;
     const std::string& getDescription() const;
     LibraryItemCategory getItemCategory() const;
+
+    friend std::ostream& operator<<(std::ostream& os, const LibraryItem& libraryItem);
+
 };

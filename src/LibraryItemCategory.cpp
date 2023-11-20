@@ -1,5 +1,11 @@
 #include "LibraryItemCategory.h"
 
+std::ostream& operator<<(std::ostream &out, LibraryItemCategory const& libraryItemCategory) {
+    out << '[' << libraryItemCategory.getId() << "] ";
+    out << libraryItemCategory.getName();
+    return out;
+}
+
 LibraryItemCategory::LibraryItemCategory() : LibraryItemCategory(0, std::string()) {}
 
 LibraryItemCategory::LibraryItemCategory(const std::string& name) {

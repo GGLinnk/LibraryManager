@@ -1,5 +1,15 @@
 #include "LibraryItem.h"
 
+std::ostream& operator<<(std::ostream& out, const LibraryItem& libraryItem) {
+    out << '[' << libraryItem.getId() << "] ";
+    out << '(' << libraryItem.getItemCategory() << ") ";
+    out << "\"" << libraryItem.getName() << "\" by \"";
+    out << libraryItem.getAuthor() << "\" : \"";
+    out << libraryItem.getDescription() << "\"";
+
+    return out;
+}
+
 LibraryItem::LibraryItem() {}
 
 LibraryItem::LibraryItem(long long id)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 
 class LibraryItemCategory {
@@ -22,4 +23,6 @@ public:
 
     long long getId() const;
     const std::string& getName() const;
+
+    friend std::ostream& operator<<(std::ostream& os, const LibraryItemCategory& libraryCategoryItem);
 };
