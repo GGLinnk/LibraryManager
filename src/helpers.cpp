@@ -44,7 +44,7 @@ bool getYesNoInputWithDefault(bool defaultValue, int maxTries, bool hasDefault) 
     throw std::runtime_error("Exceeded maximum number of attempts. Aborting.");
 }
 
-bool promptUserString(std::string& itemVar, char* itemVarName, size_t maxtries) {
+bool promptUserString(std::string& itemVar, const char* itemVarName, size_t maxtries) {
     for (size_t tries = 0; itemVar.empty() && tries <= maxtries; tries++) {
         if (tries > 0)
             std::cout << "Please enter a valid " << itemVarName << "! (" << tries << "/" << maxtries << ")" << std::endl;
@@ -59,7 +59,7 @@ bool promptUserString(std::string& itemVar, char* itemVarName, size_t maxtries) 
     return !itemVar.empty();
 }
 
-bool promptUserLL(long long& promptVar, char* itemVarName, size_t maxtries) {
+bool promptUserLL(long long& promptVar, const char* itemVarName, size_t maxtries) {
     std::string itemVar;
 
     for (size_t tries = 0; promptVar <= 0 && tries <= maxtries; tries++) { // NOT GENERIC ENOUGH
