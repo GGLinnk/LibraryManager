@@ -92,8 +92,10 @@ private:
     void finishInit();
 
     void applyDatabaseAdd();
+    void applyDatabaseUpdate();
     void applyDatabaseRemove();
     void applyDatabaseChanges();
+
     bool promptItemDeletion();
 
 public:

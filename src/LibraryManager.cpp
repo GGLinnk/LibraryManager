@@ -275,6 +275,22 @@ void LibraryManager::applyDatabaseAdd() {
     }
 }
 
+void LibraryManager::applyDatabaseUpdate() {
+    if (kindMode) {
+        if (libraryDatabase->saveItemKind(itemKind))
+            std::cout << "Category sucessfully updated!";
+        else
+            throw ManagerException(ManagerExceptionKind::InvalidItemKind);
+    } else {
+        libraryItem = libraryDatabase->fetchFullItem(libraryItem);
+
+        if (libraryDatabase->saveItem(libraryItem))
+            std::cout << "Item sucessfully updated!";
+        else
+            throw ManagerException(ManagerExceptionKind::InvalidItem);
+    }
+}
+
 void LibraryManager::applyDatabaseRemove() {
     if (kindMode) {
         itemKind = libraryDatabase->fetchFullItemKind(itemKind);
@@ -300,9 +316,10 @@ void LibraryManager::applyDatabaseChanges() {
     switch(operationKind) {
         case OperationKind::None:
             throw ManagerException();
-        case OperationKind::Update:
         case OperationKind::Add:
             return applyDatabaseAdd();
+        case OperationKind::Update:
+            return applyDatabaseUpdate();
         case OperationKind::Remove:
             return applyDatabaseRemove();
         default:
