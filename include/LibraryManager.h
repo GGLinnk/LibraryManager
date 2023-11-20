@@ -72,7 +72,6 @@ private:
     void handleRemoveItemCommand(CLI::App* cmd);
     void handleRemoveItemKindCommand(CLI::App* cmd);
     
-    bool promptIdForUpdate(long long& id);
     LibraryItem gatherMissingItemInfoInteractive(
         long long id,
         std::string& name,

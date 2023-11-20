@@ -186,25 +186,6 @@ void LibraryManager::handleRemoveItemKindCommand(CLI::App* cmd) {
         throw ManagerException(ManagerExceptionKind::InvalidUpdateID, "- Can't edit ID less or equal than 0!");
 }
 
-bool LibraryManager::promptIdForUpdate(long long& id) {
-    std::string itemVar;
-
-    for (short tries = 0; id <= 0 && tries <= 3; tries++) {
-        if (tries > 0)
-            std::cout << "Please enter a valid id! (" << tries << "/3)" << std::endl;
-        std::cout << "Enter id: ";
-        std::getline(std::cin, itemVar);
-        try {
-            id = std::stoi(itemVar);
-        } catch (std::invalid_argument&) { }
-    }
-
-    if (id > 0)
-        return true;
-
-    return false;
-}
-
 LibraryItem LibraryManager::gatherMissingItemInfoInteractive(
     long long id,
     std::string& name,
@@ -213,7 +194,7 @@ LibraryItem LibraryManager::gatherMissingItemInfoInteractive(
     std::string& kindIdOrString,
     bool update
 ) {
-    if (update && !promptIdForUpdate(id))
+    if (update && !promptUserLL(id, "id"))
         throw ManagerException(ManagerExceptionKind::InvalidUpdateID);
 
     if (!promptUserString(name, "name", update ? 0 : 3) && !update)
@@ -236,7 +217,7 @@ ItemKind LibraryManager::gatherMissingItemKindInfoInteractive(
     std::string& name,
     bool update
 ) {
-    if (update && !promptIdForUpdate(id))
+    if (update && !promptUserLL(id, "id"))
         throw ManagerException(ManagerExceptionKind::InvalidUpdateID);
 
     if (!promptUserString(name, "name") && !update)
