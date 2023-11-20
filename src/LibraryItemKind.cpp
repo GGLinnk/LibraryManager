@@ -5,9 +5,10 @@ ItemKind::ItemKind() : ItemKind(0, std::string()) {}
 ItemKind::ItemKind(const std::string& name) {
     try {
         id = std::stoll(name);
-    } catch (...) {
+    } catch (...) { // FIXME !
         this->name = name;
     }
+    empty = false;
 }
 
 ItemKind::ItemKind(long long id)
