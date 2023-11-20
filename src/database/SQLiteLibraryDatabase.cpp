@@ -64,7 +64,7 @@ ItemKind SQLiteLibraryDatabase::fetchFullItemKind(const ItemKind& itemKind) {
         fetchTableRowById(itemKind.getId(), ITEMSKIND_TABLE_NAME);
 
     if (!itemKindQuery.executeStep())
-        throw ManagerException(ManagerExceptionKind::LibraryItemKindNotFound);
+        throw ManagerException(ManagerExceptionKind::LibraryItemKindNotFound, "- If you're updating, check that itemKind haven't been deleted");
 
     long long id = itemKindQuery.getColumn("id").getInt64();
     std::string name = itemKindQuery.getColumn("name").getText();
