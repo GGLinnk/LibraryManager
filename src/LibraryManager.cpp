@@ -279,12 +279,14 @@ void LibraryManager::finishInit() {
 void LibraryManager::applyDatabaseAdd() {
     if (kindMode) {
         if (libraryDatabase->saveItemKind(itemKind))
-            std::cout << "Intem sucessfully added to the database!";
+            std::cout << "Category sucessfully added to the database!";
         else
             throw ManagerException(ManagerExceptionKind::InvalidItemKind);
     } else {
+        libraryItem = libraryDatabase->fetchFullItem(libraryItem);
+
         if (libraryDatabase->saveItem(libraryItem))
-            std::cout << "Intem sucessfully added to the database!";
+            std::cout << "Item sucessfully added to the database!";
         else
             throw ManagerException(ManagerExceptionKind::InvalidItem);
     }

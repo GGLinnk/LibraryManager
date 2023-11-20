@@ -34,15 +34,20 @@ const std::filesystem::path SQLiteLibraryDatabase::getLibraryDatabasePath(
 }
 
 LibraryItem SQLiteLibraryDatabase::fetchFullItem(const LibraryItem& libraryItem) {
-    if (libraryItem.getId() <= 0)
-        throw ManagerException(ManagerExceptionKind::InvalidItemID, "- Library item ID can't be zero or negative number!");
-    
+    if (libraryItem.getId() < 0)
+        throw ManagerException(ManagerExceptionKind::InvalidItemID, "- Library item ID can't be negative number!");
+
     SQLite::Statement itemQuery = fetchTableRowById(libraryItem.getId(), ITEMSKIND_TABLE_NAME);
 
-    std::string name = itemQuery.getColumn("name").getText();
-    std::string author = itemQuery.getColumn("author").getText();
-    std::string description = itemQuery.getColumn("description").getText();
-    ItemKind itemKind = fetchFullItemKind(itemQuery.getColumn("kind").getInt64());
+    if (libraryItem.getId() > 0)
+        if (itemQuery.executeStep())
+            throw ManagerException(ManagerExceptionKind::LibraryItemNotFound);
+
+    std::string name = (libraryItem.getName().empty()) ? itemQuery.getColumn("name").getText() : libraryItem.getName();
+    std::string author = (libraryItem.getAuthor().empty()) ? itemQuery.getColumn("author").getText() : libraryItem.getAuthor();
+    std::string description = (libraryItem.getDescription().empty()) ? itemQuery.getColumn("description").getText() : libraryItem.getDescription();
+
+    ItemKind itemKind = fetchFullItemKind((libraryItem.getItemKind().isEmpty()) ? itemQuery.getColumn("kind").getInt64() : libraryItem.getItemKind());
 
     return LibraryItem(libraryItem.getId(), name, author, description, itemKind);
 }
