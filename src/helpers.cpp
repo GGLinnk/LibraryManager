@@ -50,6 +50,9 @@ bool getMissingInfo(long long id, std::string& itemVar, char* itemVarName) {
             std::cout << "Please enter a valid " << itemVarName << "! (" << tries << "/3)" << std::endl;
         std::cout << "Enter " << itemVarName << ": ";
         std::getline(std::cin, itemVar);
+
+        if (std::cin.fail() || std::cin.eof())
+            return false;
         if (id > 0)
             return true;
     }
