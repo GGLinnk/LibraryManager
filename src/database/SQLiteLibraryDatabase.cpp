@@ -37,7 +37,7 @@ LibraryItem SQLiteLibraryDatabase::fetchFullItem(const LibraryItem& libraryItem)
     if (libraryItem.getId() < 0)
         throw ManagerException(ManagerExceptionKind::InvalidItemID, "- Library item ID can't be negative number!");
 
-    SQLite::Statement itemQuery = fetchTableRowById(libraryItem.getId(), ITEMSKIND_TABLE_NAME);
+    SQLite::Statement itemQuery = fetchTableRowById(libraryItem.getId(), LIBRARY_ITEMS_TABLE_NAME);
 
     if (libraryItem.getId() > 0)
         if (itemQuery.executeStep())
