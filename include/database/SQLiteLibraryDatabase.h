@@ -28,6 +28,12 @@ public:
     bool removeItem(const LibraryItem& libraryItem) override;
     bool removeItemCategory(const LibraryItemCategory& libraryItemCategory) override;
 
+    std::vector<LibraryItem> searchItemsByName(const std::string& name) override;
+    std::vector<LibraryItem> searchItemsByAuthor(const std::string& author) override;
+    std::vector<LibraryItem> searchItemsByKeywords(const std::vector<std::string>& keywords) override;
+
+    std::vector<LibraryItemCategory> searchCategoriesByName(const std::string& name) override;
+
 private:
     //std::unique_ptr<SQLite::Database> database;
     SQLite::Database database;

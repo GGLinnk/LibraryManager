@@ -17,6 +17,8 @@
 #include <string>
 #include <filesystem>
 #include <memory>
+#include <vector>
+#include <algorithm>
 
 namespace fs = std::filesystem;
 
@@ -25,7 +27,8 @@ enum class OperationKind {
     Add,
     Update,
     Remove,
-    Search
+    SearchItem,
+    SeachCategory
 };
 
 class LibraryManager {
@@ -49,6 +52,17 @@ private:
     fs::path appDataFolder;
     std::string databaseFilename;
 
+    long long elemId;
+    std::string elemName;
+    std::string elemAuthor;
+    std::string elemDescription;
+    LibraryItemCategory elemCategory;
+
+    std::vector<std::string> searchKeywords;
+
+    std::vector<LibraryItem> itemSearchResult;
+    std::vector<LibraryItemCategory> itemsCategoryResult;
+
     void setAppDataFolder(fs::path newAppDataFolder);
     void setDatabaseFilename(std::string databaseFilename);
 
@@ -63,11 +77,10 @@ private:
     void handleUpdateItemPreparse(CLI::App* cmd);
     void handleRemoveItemPreparse(CLI::App* cmd);
 
+    void handleSearchItemPreparse(CLI::App* cmd);
+
     void handleItemCommand(CLI::App* cmd);
     void handleItemCategoryCommand(CLI::App* cmd);
-
-    void handleItemSearchCommand(CLI::App* cmd);
-    void handleItemCategorySearchCommand(CLI::App* cmd);
 
     void handleRemoveItemCommand(CLI::App* cmd);
     void handleRemoveItemCategoryCommand(CLI::App* cmd);
@@ -97,7 +110,14 @@ private:
 
     void databaseSearch();
 
+    std::vector<LibraryItem> searchItemsByName();
+    std::vector<LibraryItem> searchItemsByAuthor();
+    std::vector<LibraryItem> searchItemsByKeywords();
+
+    std::vector<LibraryItemCategory> searchCategoriesByName();
+
     void applyDatabaseChanges();
+    void displayFoundItem();
 
     bool promptItemDeletion();
 

@@ -15,6 +15,7 @@ LibraryManager::LibraryManager(int argc, char *argv[]) :
 
         finishInit();
         applyDatabaseChanges();
+        displayFoundItem();
     } catch (const CLI::ParseError& e) {
         throw ManagerException(ManagerExceptionKind::CLIParseError, e.what());
     } catch(SQLite::Exception& e) {
@@ -69,39 +70,39 @@ void LibraryManager::configureCallbacks() {
 void LibraryManager::handleItemModePreparse(CLI::App* currentMode) {
     this->categoryMode = false;
 
-    CLI::App* addCommand = currentMode->add_subcommand("add", "Add a library item");
+    CLI::App* addCommand = currentMode->add_subcommand("add", "Add a library items");
     addCommand->preparse_callback([this, addCommand](size_t _) { handleAddItemPreparse(addCommand); });
     addCommand->callback([this, addCommand]() { handleItemCommand(addCommand); });
 
-    CLI::App* updateCommand = currentMode->add_subcommand("update", "Update a library item");
+    CLI::App* updateCommand = currentMode->add_subcommand("update", "Update a library items");
     updateCommand->preparse_callback([this, updateCommand](size_t _) { handleUpdateItemPreparse(updateCommand); });
     updateCommand->callback([this, updateCommand]() { handleItemCommand(updateCommand); });
 
-    CLI::App* removeCommand = currentMode->add_subcommand("remove", "Remove a library item");
+    CLI::App* removeCommand = currentMode->add_subcommand("remove", "Remove a library items");
     removeCommand->preparse_callback([this, removeCommand](size_t _) { handleRemoveItemPreparse(removeCommand); });
     removeCommand->callback([this, removeCommand]() { handleRemoveItemCommand(removeCommand); });
 
-    /* CLI::App* searchCommand = currentMode->add_subcommand("search", "Search for library items"); */
-    /* searchCommand->callback([this, searchCommand]() { handleItemSearchCommand(searchCommand); }); */
+    CLI::App* searchCommand = currentMode->add_subcommand("search", "Search for library items");
+    searchCommand->preparse_callback([this, searchCommand](size_t _) { handleSearchItemPreparse(searchCommand); });
+    searchCommand->callback([this]() { this->operationKind = OperationKind::SearchItem; });
 }
 
 void LibraryManager::handleItemCategoryModePreparse(CLI::App* currentMode) {
     this->categoryMode = true;
 
-    CLI::App* addCommand = currentMode->add_subcommand("add", "Add a library item kind");
+    CLI::App* addCommand = currentMode->add_subcommand("add", "Add a library category");
     addCommand->preparse_callback([this, addCommand](size_t _) { handleAddItemPreparse(addCommand); });
     addCommand->callback([this, addCommand]() { handleItemCategoryCommand(addCommand); });
 
-    CLI::App* updateCommand = currentMode->add_subcommand("update", "Update a library item kind");
+    CLI::App* updateCommand = currentMode->add_subcommand("update", "Update a library category");
     updateCommand->preparse_callback([this, updateCommand](size_t _) { handleUpdateItemPreparse(updateCommand); });
-    updateCommand->callback([this, updateCommand]() { handleItemCategoryCommand(updateCommand); });
 
-    CLI::App* removeCommand = currentMode->add_subcommand("remove", "Remove a library item kind");
+    CLI::App* removeCommand = currentMode->add_subcommand("remove", "Remove a library category");
     removeCommand->preparse_callback([this, removeCommand](size_t _) { handleRemoveItemPreparse(removeCommand); });
-    removeCommand->callback([this, removeCommand]() { handleRemoveItemCategoryCommand(removeCommand); });
 
-    /* CLI::App* searchCommand = currentMode->add_subcommand("search", "Search for library item kinds"); */
-    /* searchCommand->callback([this, searchCommand]() { handleItemCategorySearchCommand(searchCommand); }); */
+    CLI::App* searchCommand = currentMode->add_subcommand("search", "Search for library category");
+    searchCommand->preparse_callback([this, searchCommand](size_t _) { handleSearchItemPreparse(searchCommand); });
+    searchCommand->callback([this]() { this->operationKind = OperationKind::SeachCategory; });
 }
 
 void LibraryManager::handleAddItemPreparse(CLI::App* cmd) {
@@ -127,6 +128,15 @@ void LibraryManager::handleUpdateItemPreparse(CLI::App* cmd) {
 
 void LibraryManager::handleRemoveItemPreparse(CLI::App* cmd) {
     cmd->add_option("--id", "ID of the item you want to remove.");
+}
+
+void LibraryManager::handleSearchItemPreparse(CLI::App* cmd) {
+    cmd->add_option("-n,--name", elemName, "Name of the item you want to add.");
+
+    if (categoryMode) return;
+
+    cmd->add_option("-a,--author", elemAuthor, "Author of the item you want to add.");
+    cmd->add_option("-k,--keyords", searchKeywords, "Space or coma separated keywords to search. I will search in names, authors and description");
 }
 
 void LibraryManager::handleItemCommand(CLI::App* cmd) {
@@ -229,14 +239,6 @@ LibraryItemCategory LibraryManager::gatherMissingItemCategoryInfoInteractive(
     return LibraryItemCategory(id, name);
 }
 
-void LibraryManager::handleItemSearchCommand(CLI::App* cmd) {
-    // Implement logic for searching library items or item kinds
-}
-
-void LibraryManager::handleItemCategorySearchCommand(CLI::App* cmd) {
-    // Implement logic for searching library items or item kinds
-}
-
 int LibraryManager::parse(int argc, char *argv[]) {
     try {
         app.parse(argc, argv);
@@ -310,7 +312,57 @@ void LibraryManager::applyDatabaseRemove() {
 }
 
 void LibraryManager::databaseSearch() {
+    if (operationKind == OperationKind::SeachCategory && !elemName.empty()) {
+        auto nameResult = searchCategoriesByName();
+        itemsCategoryResult.insert(
+            itemsCategoryResult.end(),
+            std::make_move_iterator(nameResult.begin()),
+            std::make_move_iterator(nameResult.end())
+        );
+    }
 
+    if (operationKind == OperationKind::SearchItem && !elemName.empty()) {
+        auto nameResult = searchItemsByName();
+        itemSearchResult.insert(
+            itemSearchResult.end(),
+            std::make_move_iterator(nameResult.begin()),
+            std::make_move_iterator(nameResult.end())
+        );
+    }
+
+    if (operationKind == OperationKind::SearchItem && !elemAuthor.empty()) {
+        auto authorResult = searchItemsByAuthor();
+        itemSearchResult.insert(
+            itemSearchResult.end(),
+            std::make_move_iterator(authorResult.begin()),
+            std::make_move_iterator(authorResult.end())
+        );
+    }
+
+    if (operationKind == OperationKind::SearchItem && !searchKeywords.empty()) {
+        auto keywordsResult = searchItemsByName();
+        itemSearchResult.insert(
+            itemSearchResult.end(),
+            std::make_move_iterator(keywordsResult.begin()),
+            std::make_move_iterator(keywordsResult.end())
+        );
+    }
+}
+
+std::vector<LibraryItem> LibraryManager::searchItemsByName() {
+    return libraryDatabase->searchItemsByName(elemName);
+}
+
+std::vector<LibraryItem> LibraryManager::searchItemsByAuthor() {
+    return libraryDatabase->searchItemsByAuthor(elemAuthor);
+}
+
+std::vector<LibraryItem> LibraryManager::searchItemsByKeywords() {
+    return libraryDatabase->searchItemsByKeywords(searchKeywords);
+}
+
+std::vector<LibraryItemCategory> LibraryManager::searchCategoriesByName() {
+    return libraryDatabase->searchCategoriesByName(elemName);
 }
 
 void LibraryManager::applyDatabaseChanges() {
@@ -324,12 +376,23 @@ void LibraryManager::applyDatabaseChanges() {
             return applyDatabaseUpdate();
         case OperationKind::Remove:
             return applyDatabaseRemove();
-        case OperationKind::Search:
+        case OperationKind::SearchItem:
+        case OperationKind::SeachCategory:
             return databaseSearch();
         case OperationKind::None:
         default:
             throw ManagerException("Unsupported yet");
     }
+}
+
+void LibraryManager::displayFoundItem() {
+    if (!itemSearchResult.empty())
+        for (const auto item: itemSearchResult)
+            std::cout << item << std::endl;
+
+    if (!itemsCategoryResult.empty())
+        for (const auto itemCategory: itemsCategoryResult)
+            std::cout << itemCategory << std::endl;
 }
 
 bool LibraryManager::promptItemDeletion() {

@@ -225,3 +225,96 @@ bool SQLiteLibraryDatabase::removeTableRowById(const long long itemId, const std
 
     return query.exec() > 0;
 }
+
+std::vector<LibraryItem> SQLiteLibraryDatabase::searchItemsByName(const std::string& name) {
+    std::vector<LibraryItem> result;
+
+    SQLite::Statement query(database, "SELECT * FROM " LIBRARY_ITEMS_TABLE_NAME " WHERE name LIKE :name;");
+    query.bind(":name", "%" + name + "%");
+
+    while (query.executeStep()) {
+        LibraryItem item(
+            query.getColumn("id"),
+            query.getColumn("name"),
+            query.getColumn("author"),
+            query.getColumn("description"),
+            fetchFullItemCategory(query.getColumn("category").getInt())
+        );
+
+        result.push_back(item);
+    }
+
+    return result;
+}
+
+std::vector<LibraryItem> SQLiteLibraryDatabase::searchItemsByAuthor(const std::string& author) {
+    std::vector<LibraryItem> result;
+
+    SQLite::Statement query(database, "SELECT * FROM " LIBRARY_ITEMS_TABLE_NAME " WHERE author LIKE :author;");
+    query.bind(":author", "%" + author + "%");
+
+    while (query.executeStep()) {
+        LibraryItem item(
+            query.getColumn("id"),
+            query.getColumn("name"),
+            query.getColumn("author"),
+            query.getColumn("description"),
+            fetchFullItemCategory(query.getColumn("category").getInt())
+        );
+
+        result.push_back(item);
+    }
+
+    return result;
+}
+
+std::vector<LibraryItem> SQLiteLibraryDatabase::searchItemsByKeywords(const std::vector<std::string>& keywords) {
+    std::vector<LibraryItem> result;
+    std::string queryStr = "SELECT * FROM " LIBRARY_ITEMS_TABLE_NAME " WHERE ";
+
+    for (size_t i = 0; i < keywords.size(); ++i) {
+        if (i != 0) {
+            queryStr += " OR ";
+        }
+        queryStr += "name LIKE :keyword" + std::to_string(i);
+    }
+
+    SQLite::Statement query(database, queryStr);
+
+    for (size_t i = 0; i < keywords.size(); ++i) {
+        query.bind(":keyword" + std::to_string(i), "%" + keywords[i] + "%");
+    }
+
+    while (query.executeStep()) {
+        LibraryItem item(
+            query.getColumn("id"),
+            query.getColumn("name"),
+            query.getColumn("author"),
+            query.getColumn("description"),
+            fetchFullItemCategory(query.getColumn("category").getInt())
+        );
+
+        result.push_back(item);
+    }
+
+    return result;
+}
+
+std::vector<LibraryItemCategory> SQLiteLibraryDatabase::searchCategoriesByName(const std::string& name) {
+    std::vector<LibraryItemCategory> result;
+
+    SQLite::Statement query(database, "SELECT * FROM " ITEM_CATEGORIES_TABLE_NAME " WHERE name LIKE :name;");
+
+    query.bind(":name", "%" + name + "%");
+    
+    while (query.executeStep()) {
+        LibraryItemCategory libraryItemCategory(
+            query.getColumn("id"),
+            query.getColumn("name")
+        );
+
+        result.push_back(libraryItemCategory);
+    }
+
+    return result;
+}

@@ -25,6 +25,12 @@ public:
     virtual bool removeItem(const LibraryItem& libraryItem) = 0;
     virtual bool removeItemCategory(const LibraryItemCategory& libraryItemCategory) = 0;
 
+    virtual std::vector<LibraryItem> searchItemsByName(const std::string& name) = 0;
+    virtual std::vector<LibraryItem> searchItemsByAuthor(const std::string& author) = 0;
+    virtual std::vector<LibraryItem> searchItemsByKeywords(const std::vector<std::string>& keywords) = 0;
+
+    virtual std::vector<LibraryItemCategory> searchCategoriesByName(const std::string& name) = 0;
+
     /* virtual std::vector<LibraryItem> getAllItems() const = 0;
     virtual std::vector<LibraryItem> searchItems(const std::string& searchTerm) const = 0;
     virtual std::vector<LibraryItem> sortItemsByName() const = 0; */
