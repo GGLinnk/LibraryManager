@@ -76,18 +76,16 @@ bool SQLiteLibraryDatabase::saveItem(const LibraryItem& libraryItem) {
     if (!checkItem(libraryItem))
         throw ManagerException(ManagerExceptionKind::InvalidItem);
 
-    ItemKind itemKind = fetchFullItemKind(libraryItem.getItemKind());
-
     if (!checkItemKind(libraryItem.getItemKind()))
-        return false;
+        throw ManagerException(ManagerExceptionKind::InvalidItemKind);
 
     if (libraryItem.getId() <= 0) {
-        SQLite::Statement query(database, "INSERT INTO library_items (name, author, description, kind) VALUES (?, ?, ?, ?)");
-        query.bind(1, libraryItem.getName());
-        query.bind(2, libraryItem.getAuthor());
-        query.bind(3, libraryItem.getDescription());
-        query.bind(4, itemKind.getId());
-        query.exec();
+        SQLite::Statement addQuery(database, "INSERT INTO library_items (name, author, description, kind) VALUES (?, ?, ?, ?)");
+        addQuery.bind(1, libraryItem.getName());
+        addQuery.bind(2, libraryItem.getAuthor());
+        addQuery.bind(3, libraryItem.getDescription());
+        addQuery.bind(4, libraryItem.getItemKind().getId());
+        addQuery.exec();
     } else {
         SQLite::Statement existsQuery(database, "SELECT * FROM library_items WHERE id = ?");
         existsQuery.bind(1, libraryItem.getId());
@@ -98,7 +96,7 @@ bool SQLiteLibraryDatabase::saveItem(const LibraryItem& libraryItem) {
             updateQuery.bind(1, libraryItem.getName());
             updateQuery.bind(2, libraryItem.getAuthor());
             updateQuery.bind(3, libraryItem.getDescription());
-            updateQuery.bind(4, itemKind.getId());
+            updateQuery.bind(4, libraryItem.getItemKind().getId());
             updateQuery.bind(5, libraryItem.getId());
             updateQuery.exec();
         } else {
@@ -148,32 +146,35 @@ bool SQLiteLibraryDatabase::checkItemKind(const ItemKind& itemKind) {
         return false;
 
     if (itemKind.getId() == 0)
-        if (!checkItemKindAlreadyExists(itemKind))
-            return true;
+        if (checkItemKindAlreadyExists(itemKind))
+            throw ManagerException(ManagerExceptionKind::DBCategoryAlreadyExists);
 
     if (itemKind.getId() > 0)
-        if (checkIdExists(itemKind.getId(), ITEMSKIND_TABLE_NAME))
-            return true;
+        if (!checkIdExists(itemKind.getId(), ITEMSKIND_TABLE_NAME))
+            throw ManagerException(ManagerExceptionKind::DBCategoryNotFound);
 
-    return false;
+    return true;
 }
 
 bool SQLiteLibraryDatabase::checkItem(const LibraryItem& libraryItem) {
     // If item have not been fully initialized or if it is empty, it fails.
-    if (!libraryItem.isInitialized() || libraryItem.isEmpty())
-        return false;
+    if (!libraryItem.isInitialized())
+        throw ManagerException(ManagerExceptionKind::ItemNotInitialized);
 
     // If this is a new item, check if combo name/author already exists.
     if (libraryItem.getId() == 0)
+        if (checkItemAlreadyExists(libraryItem))
+            throw ManagerException(ManagerExceptionKind::DBItemAlreadyExists);
+
         if (!checkItemAlreadyExists(libraryItem))
             return true;
 
     // If this is updated item, check if id exists in table.
     if (libraryItem.getId() > 0)
-        if (checkIdExists(libraryItem.getId(), LIBRARY_ITEMS_TABLE_NAME))
-            return true;
+        if (!checkIdExists(libraryItem.getId(), LIBRARY_ITEMS_TABLE_NAME))
+            throw ManagerException(ManagerExceptionKind::DBItemNotFound);
 
-    return false;
+    return true;
 }
 
 SQLite::Statement SQLiteLibraryDatabase::fetchTableRowById(const long long id, const std::string& tableName) {
@@ -192,17 +193,20 @@ SQLite::Statement SQLiteLibraryDatabase::fetchTableRowByName(const std::string& 
     return fetchQuery;
 }
 
-bool SQLiteLibraryDatabase::checkItemAlreadyExists(const LibraryItem& item) {
-    SQLite::Statement query(database, "SELECT * FROM " LIBRARY_ITEMS_TABLE_NAME " WHERE name = ? AND author = ? COLLATE NOCASE LIMIT 1;");
+bool SQLiteLibraryDatabase::checkItemAlreadyExists(const LibraryItem& libraryItem) {
+    SQLite::Statement query(database, "SELECT * FROM " LIBRARY_ITEMS_TABLE_NAME " WHERE name COLLATE NOCASE = ? AND author = ? AND id COLLATE NOCASE = ? LIMIT 1;");
 
-    query.bind(1, item.getName());
-    query.bind(2, item.getAuthor());
+    std::cout << "Checking if " << libraryItem.getName() << " by " << libraryItem.getAuthor() << " - Kind (" << libraryItem.getItemKind().getId() << "): " << libraryItem.getItemKind().getName() << std::endl;
+
+    query.bind(1, libraryItem.getName());
+    query.bind(2, libraryItem.getAuthor());
+    query.bind(3, libraryItem.getItemKind().getId());
 
     return query.executeStep();
 }
 
 bool SQLiteLibraryDatabase::checkItemKindAlreadyExists(const ItemKind& itemKind) {
-    SQLite::Statement query(database, "SELECT FROM " ITEMSKIND_TABLE_NAME " WHERE name = ? COLLATE NOCASE LIMIT 1;");
+    SQLite::Statement query(database, "SELECT * FROM " ITEMSKIND_TABLE_NAME " WHERE name = ? COLLATE NOCASE LIMIT 1;");
 
     query.bind(1, itemKind.getName());
 
