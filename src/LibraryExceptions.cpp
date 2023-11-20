@@ -26,6 +26,14 @@ std::string ManagerException::getMessage(ManagerExceptionKind reason) {
         return std::string("Invalid argument!");
     case ManagerExceptionKind::CLIParseError:
         return std::string("Failed to Parse CLI!");
+    case ManagerExceptionKind::DBCategoryAlreadyExists:
+        return std::string("Category already exists!");
+    case ManagerExceptionKind::DBCategoryNotFound:
+        return std::string("Category not found!");
+    case ManagerExceptionKind::DBItemAlreadyExists:
+        return std::string("Item already exists!");
+    case ManagerExceptionKind::DBItemNotFound:
+        return std::string("Item not found!");
     case ManagerExceptionKind::DBEntryNotFound:
         return std::string("Database entry not found!");
     case ManagerExceptionKind::DBException:
@@ -50,8 +58,8 @@ std::string ManagerException::getMessage(ManagerExceptionKind reason) {
         return std::string("Invalid Item Kind!");
     case ManagerExceptionKind::InvalidUpdateID:
         return std::string("Invalid Update ID!");
-    case ManagerExceptionKind::LibraryInvalidItem:
-        return std::string("Invalid item!");
+    case ManagerExceptionKind::ItemNotInitialized:
+        return std::string("Library Item is not initialized!");
     case ManagerExceptionKind::LibraryItemKindNotFound:
         return std::string("Library item kind not found!");
     case ManagerExceptionKind::LibraryItemNotFound:
